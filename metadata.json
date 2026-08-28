@@ -1,0 +1,6 @@
+{
+  "name": "DevCraft Modern Portfolio & Admin Studio",
+  "description": "Ultra-modern developer portfolio for Jupri Eka Pratama with interactive hanging lanyard badge, ReactBits motion effects, 3D interactive Spline visualizer, bento grid, spotlight effects, interactive terminal, and Supabase-powered Admin CMS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
