@@ -249,43 +249,53 @@ export function createProfileCardTexture(
   return texture;
 }
 
-/**
- * Creates a stylish repeating lanyard ribbon strap texture matching fattahmaulana/3D_CARD bandd.png style
- */
-export function createLanyardBandTexture(brandText = 'JUPRI EKA PRATAMA • '): THREE.CanvasTexture {
+/** One eight-unit print run, with an unprinted fabric section at the clip. */
+export function createLanyardBandTexture(brandText = 'JUPRI EKA PRATAMA'): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
-  canvas.width = 2048;
-  canvas.height = 256;
+  canvas.width = 4096;
+  canvas.height = 128;
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     return new THREE.CanvasTexture(canvas);
   }
 
-  // Pure deep black background (exact match with 3D_CARD)
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = '#181d20';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Subtle woven edge seams
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.fillRect(0, 4, canvas.width, 2);
-  ctx.fillRect(0, canvas.height - 6, canvas.width, 2);
+  // Low-contrast weave and inset edge stitching remain legible without shimmer.
+  ctx.fillStyle = '#202629';
+  for (let x = 0; x < canvas.width; x += 12) ctx.fillRect(x, 0, 2, canvas.height);
+  ctx.strokeStyle = '#454c50';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([12, 9]);
+  for (const y of [9, canvas.height - 9]) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
 
-  // High-clarity, bold brand typography formatted to fit multiple times cleanly
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '900 74px "Inter", "Segoe UI", sans-serif';
-  ctx.textAlign = 'center';
+  ctx.fillStyle = '#e5e9e9';
+  ctx.font = '600 54px "Segoe UI", sans-serif';
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
 
-  // Draw 3 copies per texture tile so that the name is always fully readable along the strap
-  ctx.fillText(brandText, canvas.width * (1 / 6), canvas.height / 2);
-  ctx.fillText(brandText, canvas.width * (3 / 6), canvas.height / 2);
-  ctx.fillText(brandText, canvas.width * (5 / 6), canvas.height / 2);
+  // Print starts 0.7 world units above the ring, clear of the folded tab.
+  // Separate full names by fixed distances; never tile or clip a name at the seam.
+  for (const start of [0.7, 3.4, 6.1]) {
+    let x = canvas.width * start / 8;
+    for (const letter of brandText.trim()) {
+      ctx.fillText(letter, x, canvas.height / 2);
+      x += ctx.measureText(letter).width + 5;
+    }
+  }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.flipY = false;
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(2.2, 1);
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
   texture.anisotropy = 16;
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.needsUpdate = true;

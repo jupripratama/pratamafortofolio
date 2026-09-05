@@ -1,24 +1,18 @@
 import React, { useEffect, useRef, useState, useMemo, Suspense } from 'react';
 import * as THREE from 'three';
-import { Canvas, extend, useThree, useFrame, ThreeElement } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
-import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { ProfileSettings } from '../types';
 import { soundFx } from '../lib/audio';
 import { createProfileCardTexture, createLanyardBandTexture } from '../lib/cardTextures';
-
-extend({ MeshLineGeometry, MeshLineMaterial });
-
-declare module '@react-three/fiber' {
-  interface ThreeElements {
-    meshLineGeometry: ThreeElement<typeof MeshLineGeometry>;
-    meshLineMaterial: ThreeElement<typeof MeshLineMaterial>;
-  }
-}
+import { createLanyardGeometry, createLanyardUpdater, STRAP_WIDTH } from '../lib/lanyardGeometry';
 
 const GLTF_PATH = '/assets/kartu.glb';
 const TEXTURE_PATH = '/assets/bandd.png';
+const ROPE_SEGMENT_LENGTH = 2.45;
+const MODEL_SCALE = 2.25;
+const MODEL_OFFSET: [number, number, number] = [0, -1.2, -0.05];
 
 useGLTF.preload(GLTF_PATH);
 useTexture.preload(TEXTURE_PATH);
@@ -32,20 +26,13 @@ interface HangingTagCardProps {
 interface BandProps {
   profile: ProfileSettings;
   textureMode: 'custom' | 'original';
-  maxSpeed?: number;
-  minSpeed?: number;
 }
 
-// Width callback to smoothly taper the bottom 4% of ribbon to fit inside metal collar without corner protrusion
-const widthCallback = (p: number) => {
-  if (p < 0.04) {
-    return 0.32 + (p / 0.04) * 0.68;
-  }
-  return 1.0;
-};
-
-function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps) {
-  const band = useRef<any>(null);
+function Band({ profile, textureMode }: BandProps) {
+  const cardModel = useRef<THREE.Group>(null);
+  const anchorVisual = useRef<THREE.Group>(null);
+  const guideVisual = useRef<THREE.Group>(null);
+  const middleVisual = useRef<THREE.Group>(null);
   const fixed = useRef<any>(null);
   const j1 = useRef<any>(null);
   const j2 = useRef<any>(null);
@@ -58,6 +45,12 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
   const dir = useMemo(() => new THREE.Vector3(), []);
   const quat = useMemo(() => new THREE.Quaternion(), []);
   const clampTop = useMemo(() => new THREE.Vector3(), []);
+  const guide = useMemo(() => new THREE.Vector3(), []);
+  const middle = useMemo(() => new THREE.Vector3(), []);
+  const anchor = useMemo(() => new THREE.Vector3(), []);
+  const strapGeometry = useMemo(createLanyardGeometry, []);
+  const updateStrap = useMemo(() => createLanyardUpdater(strapGeometry), [strapGeometry]);
+  useEffect(() => () => strapGeometry.dispose(), [strapGeometry]);
 
   const segmentProps = useMemo(() => ({
     type: 'dynamic' as const,
@@ -68,6 +61,14 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
   }), []);
 
   const { nodes, materials } = useGLTF(GLTF_PATH) as any;
+  const attachment = useMemo(() => {
+    const geometry = nodes.clip.geometry as THREE.BufferGeometry;
+    geometry.computeBoundingBox();
+    const bounds = geometry.boundingBox!;
+    const local = new THREE.Vector3((bounds.min.x + bounds.max.x) / 2, bounds.max.y - 0.002, -0.012);
+    const joint = local.clone().multiplyScalar(MODEL_SCALE).add(new THREE.Vector3(...MODEL_OFFSET));
+    return { local, joint: joint.toArray() as [number, number, number] };
+  }, [nodes]);
   const originalTexture = useTexture(TEXTURE_PATH);
   originalTexture.wrapS = originalTexture.wrapT = THREE.RepeatWrapping;
 
@@ -88,30 +89,19 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
   }, [profile, profileImage]);
 
   const customBandTexture = useMemo(() => {
-    return createLanyardBandTexture('JUPRI EKA PRATAMA • ');
+    return createLanyardBandTexture('JUPRI EKA PRATAMA');
   }, []);
 
   const activeCardTexture = textureMode === 'custom' ? customCardTexture : materials.base.map;
   const activeBandTexture = textureMode === 'custom' ? customBandTexture : originalTexture;
 
-  const { width, height } = useThree((state) => state.size);
-  const [curve] = useState(
-    () => new THREE.CatmullRomCurve3([
-      new THREE.Vector3(),
-      new THREE.Vector3(),
-      new THREE.Vector3(),
-      new THREE.Vector3(),
-    ]),
-  );
-
   const [dragged, drag] = useState<any>(false);
   const [hovered, hover] = useState(false);
 
-  // Extended rope joint lengths (2.3) so the lanyard strap is long, elegant, and readable
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 2.3]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 2.3]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 2.3]);
-  useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]]);
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
+  useSphericalJoint(j3, card, [[0, 0, 0], attachment.joint]);
 
   useEffect(() => {
     if (hovered) {
@@ -122,7 +112,7 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
     }
   }, [hovered, dragged]);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
@@ -135,40 +125,7 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
       });
     }
 
-    if (fixed.current && j1.current && j2.current && j3.current && card.current) {
-      [j1, j2].forEach((ref) => {
-        if (!ref.current.lerped) {
-          ref.current.lerped = new THREE.Vector3().copy(ref.current.translation());
-        }
-        const clampedDistance = Math.max(
-          0.1,
-          Math.min(1, ref.current.lerped.distanceTo(ref.current.translation())),
-        );
-        ref.current.lerped.lerp(
-          ref.current.translation(),
-          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
-        );
-      });
-
-      // Synchronize ribbon endpoint precisely with top collar entrance of clamp
-      const cardPos = card.current.translation();
-      const cardRot = card.current.rotation();
-      quat.set(cardRot.x, cardRot.y, cardRot.z, cardRot.w);
-      clampTop.set(0, 1.57, 0).applyQuaternion(quat);
-
-      curve.points[0].set(
-        cardPos.x + clampTop.x,
-        cardPos.y + clampTop.y,
-        cardPos.z + clampTop.z,
-      );
-      curve.points[1].copy(j2.current.lerped || j2.current.translation());
-      curve.points[2].copy(j1.current.lerped || j1.current.translation());
-      curve.points[3].copy(fixed.current.translation());
-
-      if (band.current && band.current.geometry) {
-        band.current.geometry.setPoints(curve.getPoints(32), widthCallback);
-      }
-
+    if (card.current) {
       if (!dragged) {
         try {
           ang.copy(card.current.angvel());
@@ -182,7 +139,19 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
     }
   });
 
-  curve.curveType = 'chordal';
+  // Physics runs first (-2); draw the ribbon from the SAME interpolated visual
+  // transforms as the metal. Raw rigid-body poses lead the rendered card by a tick.
+  useFrame(() => {
+    if (!cardModel.current || !anchorVisual.current || !guideVisual.current || !middleVisual.current) return;
+    cardModel.current.updateWorldMatrix(true, false);
+    clampTop.copy(attachment.local);
+    cardModel.current.localToWorld(clampTop);
+    cardModel.current.getWorldQuaternion(quat);
+    guideVisual.current.getWorldPosition(guide);
+    middleVisual.current.getWorldPosition(middle);
+    anchorVisual.current.getWorldPosition(anchor);
+    updateStrap(clampTop, quat, middle, guide, anchor);
+  }, -1);
 
   const handleFlip = () => {
     if (card.current && !dragged) {
@@ -200,26 +169,29 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
     <>
       {/* Anchor fixed at ceiling height (Y = 8.5) */}
       <group position={[0, 8.5, 0]}>
-        <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[0, -2.3, 0]} ref={j1} {...segmentProps}>
+        <RigidBody ref={fixed} {...segmentProps} type="fixed"><group ref={anchorVisual} /></RigidBody>
+        <RigidBody position={[0, -ROPE_SEGMENT_LENGTH, 0]} ref={j1} {...segmentProps}>
+          <group ref={guideVisual} />
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[0, -4.6, 0]} ref={j2} {...segmentProps}>
+        <RigidBody position={[0, -ROPE_SEGMENT_LENGTH * 2, 0]} ref={j2} {...segmentProps}>
+          <group ref={middleVisual} />
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[0, -6.9, 0]} ref={j3} {...segmentProps}>
+        <RigidBody position={[0, -ROPE_SEGMENT_LENGTH * 3, 0]} ref={j3} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody
-          position={[0, -8.35, 0]}
+          position={[-attachment.joint[0], -ROPE_SEGMENT_LENGTH * 3 - attachment.joint[1], -attachment.joint[2]]}
           ref={card}
           {...segmentProps}
           type={dragged ? 'kinematicPosition' : 'dynamic'}
         >
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
-            scale={2.25}
-            position={[0, -1.2, -0.05]}
+            ref={cardModel}
+            scale={MODEL_SCALE}
+            position={MODEL_OFFSET}
             onPointerOver={() => {
               hover(true);
               soundFx.playHover();
@@ -248,7 +220,7 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
             }}
             onDoubleClick={handleFlip}
           >
-            <mesh geometry={nodes.card.geometry} renderOrder={5}>
+            <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
                 map={activeCardTexture}
                 map-anisotropy={16}
@@ -260,30 +232,34 @@ function Band({ profile, textureMode, maxSpeed = 50, minSpeed = 10 }: BandProps)
             </mesh>
             <mesh
               geometry={nodes.clip.geometry}
-              material={materials.metal}
-              material-roughness={0.3}
-              renderOrder={10}
-            />
+            >
+              <meshStandardMaterial color="#454c50" metalness={0.75} roughness={0.48} />
+            </mesh>
             <mesh
               geometry={nodes.clamp.geometry}
-              material={materials.metal}
-              renderOrder={10}
-            />
+            >
+              <meshStandardMaterial color="#454c50" metalness={0.75} roughness={0.48} />
+            </mesh>
+            {/* Short folded fabric tab, attached to the same transform as the ring.
+                Its front face is separated from the main ribbon to avoid z-fighting. */}
+            <mesh position={[attachment.local.x, attachment.local.y + 0.052, 0.008]}>
+              <boxGeometry args={[STRAP_WIDTH / MODEL_SCALE, 0.112, 0.018]} />
+              <meshStandardMaterial color="#181d20" roughness={0.96} />
+            </mesh>
+            <mesh position={[attachment.local.x, attachment.local.y + 0.094, 0.018]}>
+              <boxGeometry args={[STRAP_WIDTH / MODEL_SCALE * 0.76, 0.002, 0.002]} />
+              <meshStandardMaterial color="#535a5e" roughness={1} />
+            </mesh>
           </group>
         </RigidBody>
       </group>
 
-      {/* Ribbon MeshLine */}
-      <mesh ref={band} renderOrder={1}>
-        <meshLineGeometry />
-        <meshLineMaterial
-          color="white"
-          depthTest={false}
-          resolution={[width, height]}
-          useMap={1 as any}
+      <mesh geometry={strapGeometry} frustumCulled={false}>
+        <meshStandardMaterial
           map={activeBandTexture}
-          repeat={[2.2, 1]}
-          lineWidth={0.92}
+          side={THREE.DoubleSide}
+          roughness={0.96}
+          metalness={0}
         />
       </mesh>
     </>
@@ -312,7 +288,7 @@ export function HangingTagCard({ profile, isReady = true }: HangingTagCardProps)
           >
             <Suspense fallback={null}>
               <ambientLight intensity={Math.PI} />
-              <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
+              <Physics interpolate updatePriority={-2} gravity={[0, -40, 0]} timeStep={1 / 60}>
                 <Band profile={profile} textureMode="custom" />
               </Physics>
               <Environment blur={0.75}>
