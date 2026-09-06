@@ -25,6 +25,16 @@ interface HeroProps {
 }
 
 export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true }: HeroProps) {
+  const [isCompact, setIsCompact] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches
+  );
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 1023px)');
+    const update = () => setIsCompact(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
   const roleText = 'Backend & Full-stack Developer';
   const [displayedText, setDisplayedText] = useState('');
   const [isScrambling, setIsScrambling] = useState(false);
@@ -92,23 +102,30 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
   return (
     <section 
       id="hero" 
-      className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-visible bg-transparent"
+      className="relative min-h-[100svh] flex items-center justify-center pt-24 pb-0 lg:pb-16 overflow-hidden bg-transparent"
     >
       <div className="absolute top-1/4 left-10 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+      {/* Interaction spans the entire opening screen, including its gutters. */}
+      {!isCompact && (
+        <div className="absolute inset-0 pointer-events-none z-10">
+          <HangingTagCard profile={profile} isReady={isReady} />
+        </div>
+      )}
+
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 relative z-20 pointer-events-none">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-center w-full">
           
           {/* ================= LEFT COLUMN: KEYNOTE PRESENTATION SLIDE-IN FROM RIGHT ================= */}
-          <div className="lg:col-span-6 xl:col-span-6 text-left space-y-6">
+          <div className="lg:col-span-6 xl:col-span-6 text-left space-y-6 pointer-events-auto">
             
             {/* Status & Location Pill */}
             <motion.div
               initial={{ opacity: 0, x: 60, filter: 'blur(8px)' }}
               animate={isReady ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: 60, filter: 'blur(8px)' }}
               transition={{ duration: 0.75, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#090d16]/90 border border-cyan-500/30 text-xs font-mono select-none shadow-lg shadow-black/40"
+              className="inline-flex flex-wrap items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#090d16]/90 border border-cyan-500/30 text-xs font-mono select-none shadow-lg shadow-black/40"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
               <span className="text-cyan-300 font-bold tracking-wider">AVAILABLE FOR PROJECTS</span>
@@ -239,10 +256,14 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
 
           </div>
 
-          {/* ================= RIGHT COLUMN: INTERACTIVE LANYARD ================= */}
-          <div className="lg:col-span-6 xl:col-span-6 flex justify-center items-center overflow-visible mt-8 lg:mt-0 pt-0">
-            <HangingTagCard profile={profile} onOpenHireModal={onOpenHireModal} isReady={isReady} />
-          </div>
+          {/* ================= RIGHT COLUMN: RESERVED SPACE FOR 3D LANYARD ================= */}
+          {isCompact ? (
+            <div className="relative h-[600px] sm:h-[680px] -mx-6 sm:-mx-10 overflow-hidden pointer-events-none" aria-label="Kartu identitas interaktif">
+              <HangingTagCard profile={profile} isReady={isReady} />
+            </div>
+          ) : (
+            <div className="lg:col-span-6 min-h-[520px] pointer-events-none" />
+          )}
 
         </div>
       </div>

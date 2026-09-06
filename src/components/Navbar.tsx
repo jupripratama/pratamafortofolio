@@ -66,27 +66,29 @@ export function Navbar({
       initial={{ opacity: 0, y: -20 }}
       animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
       transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 right-0 z-40 px-4 sm:px-6 lg:px-8 py-3 transition-all duration-300"
+      className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-10 lg:px-14 xl:px-20 py-3.5 transition-all duration-300"
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="w-full flex items-center justify-between">
         
-        {/* Brand: JUPRI_OPS with cyan-emerald dot */}
+        {/* JEP identity and location. */}
         <button
           id="navbar-brand-btn"
           onClick={() => {
             soundFx.playClick();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className="flex items-center gap-2 p-2 px-3 rounded-xl bg-[#090d16]/90 backdrop-blur-xl border border-cyan-500/20 hover:border-cyan-400/50 transition-all font-mono group shadow-lg shadow-black/40"
+          aria-label="JEP. — Kembali ke awal"
+          className="flex shrink-0 items-center gap-3 rounded-lg bg-[#090d16]/90 px-2 py-2 text-left backdrop-blur-xl transition-colors hover:bg-cyan-500/10 focus-visible:outline-2 focus-visible:outline-cyan-400"
         >
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-          <span className="text-xs font-bold text-white tracking-wider">
-            JUPRI<span className="text-cyan-400">_OPS</span>
+          <span className="text-xl font-black tracking-tighter text-slate-100">JEP.</span>
+          <span className="hidden sm:flex flex-col text-[10px] leading-4 tracking-[0.16em] text-cyan-300">
+            <span className="font-bold">BASED IN</span>
+            <span>SANGATTA, EAST KALIMANTAN</span>
           </span>
         </button>
 
         {/* Desktop Center Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 px-4 py-1.5 rounded-full bg-[#090d16]/85 backdrop-blur-2xl border border-white/10 shadow-xl shadow-black/40">
+        <nav className="hidden xl:flex items-center gap-1 px-4 py-1.5 rounded-full bg-[#090d16]/85 backdrop-blur-2xl border border-white/10 shadow-xl shadow-black/40">
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
             return (
@@ -169,7 +171,7 @@ export function Navbar({
               setMobileMenuOpen(!mobileMenuOpen);
             }}
             aria-label="Menu"
-            className="md:hidden w-8 h-8 rounded-xl bg-[#090d16]/90 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center"
+            className="xl:hidden w-8 h-8 rounded-xl bg-[#090d16]/90 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
@@ -182,7 +184,7 @@ export function Navbar({
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden mt-3 p-4 rounded-2xl bg-[#090d16]/98 backdrop-blur-2xl border border-cyan-500/20 shadow-2xl space-y-1.5"
+          className="xl:hidden mt-3 p-4 rounded-2xl bg-[#090d16]/98 backdrop-blur-2xl border border-cyan-500/20 shadow-2xl space-y-1.5"
         >
           {navItems.map((item) => {
             const isActive = activeSection === item.id;

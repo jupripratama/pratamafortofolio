@@ -8,7 +8,7 @@ interface ProjectsSectionProps {
 export function ProjectsSection({ projects }: ProjectsSectionProps) {
   return (
     <section id="projects" className="py-24 relative overflow-hidden bg-transparent">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 relative z-10">
         
         {/* Section Header Matching Design */}
         <div className="text-center max-w-2xl mx-auto mb-16">

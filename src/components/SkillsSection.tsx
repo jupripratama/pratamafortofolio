@@ -154,7 +154,7 @@ export function SkillsSection() {
 
   return (
     <section id="skills" className="py-20 sm:py-24 relative overflow-hidden bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 relative z-10">
         
         {/* Section Header Matching Reference Image */}
         <motion.div 

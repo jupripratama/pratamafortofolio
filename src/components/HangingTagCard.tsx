@@ -1,18 +1,32 @@
-import React, { useEffect, useRef, useState, useMemo, Suspense } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useMemo, Suspense } from 'react';
 import * as THREE from 'three';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
-import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
+import { BallCollider, CuboidCollider, Physics, RigidBody, useRapier, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 import { ProfileSettings } from '../types';
 import { soundFx } from '../lib/audio';
 import { createProfileCardTexture, createLanyardBandTexture } from '../lib/cardTextures';
 import { createLanyardGeometry, createLanyardUpdater, STRAP_WIDTH } from '../lib/lanyardGeometry';
+import { ErrorBoundary } from './ErrorBoundary';
 
 const GLTF_PATH = '/assets/kartu.glb';
 const TEXTURE_PATH = '/assets/bandd.png';
 const ROPE_SEGMENT_LENGTH = 2.45;
-const MODEL_SCALE = 2.25;
+const MODEL_SCALE = 2.6;
 const MODEL_OFFSET: [number, number, number] = [0, -1.2, -0.05];
+const VIEW_HEIGHT = 6.2;
+const DRAG_SENSITIVITY = 1.95;
+
+function CardCamera() {
+  const camera = useThree((state) => state.camera);
+  const height = useThree((state) => state.size.height);
+  useLayoutEffect(() => {
+    const orthographic = camera as THREE.OrthographicCamera;
+    orthographic.zoom = height / VIEW_HEIGHT;
+    orthographic.updateProjectionMatrix();
+  }, [camera, height]);
+  return null;
+}
 
 useGLTF.preload(GLTF_PATH);
 useTexture.preload(TEXTURE_PATH);
@@ -26,9 +40,13 @@ interface HangingTagCardProps {
 interface BandProps {
   profile: ProfileSettings;
   textureMode: 'custom' | 'original';
+  flipped: boolean;
+  onFlip: () => void;
 }
 
-function Band({ profile, textureMode }: BandProps) {
+function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
+  const { rapier } = useRapier();
+  const canvas = useThree((state) => state.gl.domElement);
   const cardModel = useRef<THREE.Group>(null);
   const anchorVisual = useRef<THREE.Group>(null);
   const guideVisual = useRef<THREE.Group>(null);
@@ -39,10 +57,9 @@ function Band({ profile, textureMode }: BandProps) {
   const j3 = useRef<any>(null);
   const card = useRef<any>(null);
 
-  const vec = useMemo(() => new THREE.Vector3(), []);
-  const ang = useMemo(() => new THREE.Vector3(), []);
-  const rot = useMemo(() => new THREE.Vector3(), []);
-  const dir = useMemo(() => new THREE.Vector3(), []);
+  const flipRotation = useMemo(() => new THREE.Quaternion(), []);
+  const flipTarget = useMemo(() => new THREE.Quaternion(), []);
+  const flipAxis = useMemo(() => new THREE.Vector3(0, 1, 0), []);
   const quat = useMemo(() => new THREE.Quaternion(), []);
   const clampTop = useMemo(() => new THREE.Vector3(), []);
   const guide = useMemo(() => new THREE.Vector3(), []);
@@ -51,6 +68,11 @@ function Band({ profile, textureMode }: BandProps) {
   const strapGeometry = useMemo(createLanyardGeometry, []);
   const updateStrap = useMemo(() => createLanyardUpdater(strapGeometry), [strapGeometry]);
   useEffect(() => () => strapGeometry.dispose(), [strapGeometry]);
+
+  const { width: canvasWidth, height: canvasHeight } = useThree((state) => state.size);
+  const viewportWidth = VIEW_HEIGHT * canvasWidth / canvasHeight;
+  const isMobile = canvasWidth < 1024;
+  const anchorX = isMobile ? 0 : Math.min(3.8, Math.max(2.2, viewportWidth * 0.25));
 
   const segmentProps = useMemo(() => ({
     type: 'dynamic' as const,
@@ -61,6 +83,12 @@ function Band({ profile, textureMode }: BandProps) {
   }), []);
 
   const { nodes, materials } = useGLTF(GLTF_PATH) as any;
+  const cardBounds = useMemo(() => {
+    nodes.card.geometry.computeBoundingBox();
+    return (nodes.card.geometry.boundingBox as THREE.Box3).clone()
+      .applyMatrix4(new THREE.Matrix4().makeScale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE))
+      .translate(new THREE.Vector3(...MODEL_OFFSET));
+  }, [nodes]);
   const attachment = useMemo(() => {
     const geometry = nodes.clip.geometry as THREE.BufferGeometry;
     geometry.computeBoundingBox();
@@ -95,7 +123,16 @@ function Band({ profile, textureMode }: BandProps) {
   const activeCardTexture = textureMode === 'custom' ? customCardTexture : materials.base.map;
   const activeBandTexture = textureMode === 'custom' ? customBandTexture : originalTexture;
 
-  const [dragged, drag] = useState<any>(false);
+  const [dragged, drag] = useState(false);
+  const dragSession = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    clientX: number;
+    clientY: number;
+    unitsPerPixel: number;
+    position: THREE.Vector3;
+  } | null>(null);
   const [hovered, hover] = useState(false);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
@@ -104,7 +141,43 @@ function Band({ profile, textureMode }: BandProps) {
   useSphericalJoint(j3, card, [[0, 0, 0], attachment.joint]);
 
   useEffect(() => {
-    if (hovered) {
+    const move = (event: PointerEvent) => {
+      const session = dragSession.current;
+      if (!session || event.pointerId !== session.pointerId) return;
+      session.clientX = event.clientX;
+      session.clientY = event.clientY;
+    };
+    const release = (event?: PointerEvent) => {
+      const session = dragSession.current;
+      if (!session || (event && event.pointerId !== session.pointerId)) return;
+      dragSession.current = null;
+      if (canvas.hasPointerCapture(session.pointerId)) canvas.releasePointerCapture(session.pointerId);
+      const body = card.current;
+      if (body) {
+        body.setBodyType(rapier.RigidBodyType.Dynamic, true);
+        body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      }
+      drag(false);
+    };
+    const blur = () => release();
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
+    window.addEventListener('blur', blur);
+    canvas.addEventListener('lostpointercapture', release);
+    return () => {
+      release();
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', release);
+      window.removeEventListener('pointercancel', release);
+      window.removeEventListener('blur', blur);
+      canvas.removeEventListener('lostpointercapture', release);
+    };
+  }, [canvas, rapier]);
+
+  useEffect(() => {
+    if (hovered || dragged) {
       document.body.style.cursor = dragged ? 'grabbing' : 'grab';
       return () => {
         document.body.style.cursor = 'auto';
@@ -112,32 +185,42 @@ function Band({ profile, textureMode }: BandProps) {
     }
   }, [hovered, dragged]);
 
-  useFrame((state) => {
-    if (dragged) {
-      vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
-      dir.copy(vec).sub(state.camera.position).normalize();
-      vec.add(dir.multiplyScalar(state.camera.position.length()));
+  useFrame((state, delta) => {
+    const session = dragSession.current;
+    if (session) {
+      // Move relative to the pressed point, using one coordinate system for
+      // the whole gesture. A press with no movement leaves the pose unchanged.
+      const x = session.position.x + (session.clientX - session.startX) * session.unitsPerPixel;
+      const y = session.position.y - (session.clientY - session.startY) * session.unitsPerPixel;
       [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
+      const margin = 0.06;
       card.current?.setNextKinematicTranslation({
-        x: vec.x - dragged.x,
-        y: vec.y - dragged.y,
-        z: vec.z - dragged.z,
+        x: THREE.MathUtils.clamp(x,
+          -viewportWidth / 2 - cardBounds.min.x + margin,
+          viewportWidth / 2 - cardBounds.max.x - margin),
+        y: THREE.MathUtils.clamp(y,
+          state.camera.position.y - VIEW_HEIGHT / 2 - cardBounds.min.y + margin,
+          state.camera.position.y + VIEW_HEIGHT / 2 - cardBounds.max.y - margin),
+        z: session.position.z,
       });
     }
 
     if (card.current) {
-      if (!dragged) {
+      if (!session) {
         try {
-          ang.copy(card.current.angvel());
-          const cRot = card.current.rotation();
-          rot.set(cRot.x, cRot.y, cRot.z);
-          card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+          flipRotation.copy(card.current.rotation());
+          flipTarget.setFromAxisAngle(flipAxis, flipped ? Math.PI : 0);
+          if (flipRotation.angleTo(flipTarget) > 0.001) {
+            flipRotation.slerp(flipTarget, 1 - Math.exp(-8 * Math.min(delta, 0.05)));
+            card.current.setRotation(flipRotation, true);
+          }
+          card.current.setAngvel({ x: 0, y: 0, z: 0 }, false);
         } catch {
           // ignore
         }
       }
     }
-  });
+  }, -3);
 
   // Physics runs first (-2); draw the ribbon from the SAME interpolated visual
   // transforms as the metal. Raw rigid-body poses lead the rendered card by a tick.
@@ -155,20 +238,14 @@ function Band({ profile, textureMode }: BandProps) {
 
   const handleFlip = () => {
     if (card.current && !dragged) {
-      try {
-        card.current.wakeUp();
-        card.current.applyTorqueImpulse({ x: 0, y: 2.2, z: 0 }, true);
-        soundFx.playCardFlip();
-      } catch {
-        // ignore
-      }
+      onFlip();
     }
   };
 
   return (
     <>
-      {/* Anchor fixed at ceiling height (Y = 8.5) */}
-      <group position={[0, 8.5, 0]}>
+      {/* Leave extra space below the card for a short downward pull. */}
+      <group position={[anchorX, 8.45, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed"><group ref={anchorVisual} /></RigidBody>
         <RigidBody position={[0, -ROPE_SEGMENT_LENGTH, 0]} ref={j1} {...segmentProps}>
           <group ref={guideVisual} />
@@ -185,9 +262,10 @@ function Band({ profile, textureMode }: BandProps) {
           position={[-attachment.joint[0], -ROPE_SEGMENT_LENGTH * 3 - attachment.joint[1], -attachment.joint[2]]}
           ref={card}
           {...segmentProps}
-          type={dragged ? 'kinematicPosition' : 'dynamic'}
+          type="dynamic"
+          enabledRotations={[false, true, false]}
         >
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
+          <CuboidCollider args={[0.92, 1.3, 0.01]} />
           <group
             ref={cardModel}
             scale={MODEL_SCALE}
@@ -197,26 +275,25 @@ function Band({ profile, textureMode }: BandProps) {
               soundFx.playHover();
             }}
             onPointerOut={() => hover(false)}
-            onPointerUp={(e) => {
-              try {
-                (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-              } catch {
-                // ignore
-              }
-              drag(false);
-              soundFx.playClick();
-            }}
             onPointerDown={(e) => {
-              try {
-                (e.target as HTMLElement).setPointerCapture(e.pointerId);
-              } catch {
-                // ignore
-              }
+              if (e.button !== 0 || !card.current || dragSession.current) return;
+              e.stopPropagation();
+              const body = card.current;
+              const position = new THREE.Vector3().copy(body.translation());
+              dragSession.current = {
+                pointerId: e.pointerId,
+                startX: e.clientX,
+                startY: e.clientY,
+                clientX: e.clientX,
+                clientY: e.clientY,
+                unitsPerPixel: (VIEW_HEIGHT / canvas.getBoundingClientRect().height) * DRAG_SENSITIVITY,
+                position,
+              };
+              canvas.setPointerCapture(e.pointerId);
+              body.setBodyType(rapier.RigidBodyType.KinematicPositionBased, true);
+              body.setNextKinematicTranslation(position);
+              drag(true);
               soundFx.playClick();
-              if (card.current) {
-                const trans = card.current.translation();
-                drag(new THREE.Vector3().copy(e.point).sub(vec.set(trans.x, trans.y, trans.z)));
-              }
             }}
             onDoubleClick={handleFlip}
           >
@@ -267,64 +344,70 @@ function Band({ profile, textureMode }: BandProps) {
 }
 
 export function HangingTagCard({ profile, isReady = true }: HangingTagCardProps) {
+  const [flipped, setFlipped] = useState(false);
+  const flipCard = () => {
+    setFlipped((value) => !value);
+    soundFx.playCardFlip();
+  };
   return (
-    <div className="relative w-full flex flex-col items-center select-none overflow-visible pt-0 pb-0">
-      {/* Ceiling Spotlight Ambient Beam */}
-      <div
-        className="absolute -top-72 w-[480px] sm:w-[640px] lg:w-[860px] h-[1100px] left-1/2 -translate-x-1/2 pointer-events-none z-0 opacity-70"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.24) 0%, rgba(34, 197, 94, 0.12) 45%, rgba(0,0,0,0) 70%)',
-          clipPath: 'polygon(46% 0%, 54% 0%, 98% 100%, 2% 100%)',
-        }}
-      />
-
-      {/* 3D Canvas with extra vertical height for longer visible lanyard */}
-      <div className="relative w-full max-w-[580px] sm:max-w-[660px] lg:max-w-[760px] h-[920px] sm:h-[1020px] lg:h-[1100px] flex justify-center items-center overflow-visible -mt-26 sm:-mt-30 lg:-mt-34">
-        {isReady && (
+    <div className="w-full h-full relative select-none pointer-events-none">
+      {isReady && (
+        <ErrorBoundary>
           <Canvas
-            camera={{ position: [0, -0.2, 14.5], fov: 28 }}
+            orthographic
+            camera={{ position: [0, -0.4, 11.0], zoom: 100 }}
             gl={{ alpha: true, antialias: true }}
-            style={{ width: '100%', height: '100%' }}
+            className="w-full h-full pointer-events-auto"
+            style={{ width: '100%', height: '100%', touchAction: 'none' }}
           >
-            <Suspense fallback={null}>
-              <ambientLight intensity={Math.PI} />
-              <Physics interpolate updatePriority={-2} gravity={[0, -40, 0]} timeStep={1 / 60}>
-                <Band profile={profile} textureMode="custom" />
-              </Physics>
-              <Environment blur={0.75}>
-                <Lightformer
-                  intensity={2}
-                  color="white"
-                  position={[0, -1, 5]}
-                  rotation={[0, 0, Math.PI / 3]}
-                  scale={[100, 0.1, 1]}
-                />
-                <Lightformer
-                  intensity={3}
-                  color="white"
-                  position={[-1, -1, 1]}
-                  rotation={[0, 0, Math.PI / 3]}
-                  scale={[100, 0.1, 1]}
-                />
-                <Lightformer
-                  intensity={3}
-                  color="white"
-                  position={[1, 1, 1]}
-                  rotation={[0, 0, Math.PI / 3]}
-                  scale={[100, 0.1, 1]}
-                />
-                <Lightformer
-                  intensity={10}
-                  color="white"
-                  position={[-10, 0, 14]}
-                  rotation={[0, Math.PI / 2, Math.PI / 3]}
-                  scale={[100, 10, 1]}
-                />
-              </Environment>
-            </Suspense>
-          </Canvas>
+              <CardCamera />
+              <Suspense fallback={null}>
+                <ambientLight intensity={Math.PI} />
+                <Physics interpolate updatePriority={-2} gravity={[0, -40, 0]} timeStep={1 / 60}>
+                  <Band profile={profile} textureMode="custom" flipped={flipped} onFlip={flipCard} />
+                </Physics>
+                <Environment blur={0.75}>
+                  <Lightformer
+                    intensity={2}
+                    color="white"
+                    position={[0, -1, 5]}
+                    rotation={[0, 0, Math.PI / 3]}
+                    scale={[100, 0.1, 1]}
+                  />
+                  <Lightformer
+                    intensity={3}
+                    color="white"
+                    position={[-1, -1, 1]}
+                    rotation={[0, 0, Math.PI / 3]}
+                    scale={[100, 0.1, 1]}
+                  />
+                  <Lightformer
+                    intensity={3}
+                    color="white"
+                    position={[1, 1, 1]}
+                    rotation={[0, 0, Math.PI / 3]}
+                    scale={[100, 0.1, 1]}
+                  />
+                  <Lightformer
+                    intensity={10}
+                    color="white"
+                    position={[-10, 0, 14]}
+                    rotation={[0, Math.PI / 2, Math.PI / 3]}
+                    scale={[100, 10, 1]}
+                  />
+                </Environment>
+              </Suspense>
+            </Canvas>
+            <button
+              type="button"
+              onClick={flipCard}
+              aria-pressed={flipped}
+              className="absolute bottom-4 right-6 lg:right-14 xl:right-20 z-30 pointer-events-auto min-h-11 rounded-xl border border-cyan-500/30 bg-[#090d16]/95 px-4 py-2 text-xs font-mono font-semibold text-cyan-300 shadow-lg transition-colors hover:bg-cyan-500/15 focus-visible:outline-2 focus-visible:outline-cyan-300"
+            >
+              {flipped ? '↻ Lihat depan' : '↻ Lihat belakang'}
+            </button>
+          </ErrorBoundary>
         )}
-      </div>
     </div>
   );
 }

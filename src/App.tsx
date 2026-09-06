@@ -13,6 +13,7 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { AdminModal } from './components/Admin/AdminModal';
 import { CustomCursor } from './components/CustomCursor';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { 
   ProfileSettings, 
   Project, 
@@ -160,12 +161,14 @@ export default function App() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         {/* 1. Hero: Brand Title, Scramble Subtitle, Action Buttons, and Hanging Tag */}
-        <Hero
-          profile={profile}
-          onOpenHireModal={() => handleOpenHireModal()}
-          onSelectSection={handleSelectSection}
-          isReady={!isBooting}
-        />
+        <ErrorBoundary>
+          <Hero
+            profile={profile}
+            onOpenHireModal={() => handleOpenHireModal()}
+            onSelectSection={handleSelectSection}
+            isReady={!isBooting}
+          />
+        </ErrorBoundary>
 
         {/* 2. Operasional Tanpa Hambatan & SYSTEM_INFO v2.0 Terminal */}
         <AboutOpsSection

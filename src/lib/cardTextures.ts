@@ -280,9 +280,9 @@ export function createLanyardBandTexture(brandText = 'JUPRI EKA PRATAMA'): THREE
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
 
-  // Print starts 0.7 world units above the ring, clear of the folded tab.
+  // Place the first full name close to the ring so it stays below the header.
   // Separate full names by fixed distances; never tile or clip a name at the seam.
-  for (const start of [0.7, 3.4, 6.1]) {
+  for (const start of [0.4, 3.4, 6.1]) {
     let x = canvas.width * start / 8;
     for (const letter of brandText.trim()) {
       ctx.fillText(letter, x, canvas.height / 2);

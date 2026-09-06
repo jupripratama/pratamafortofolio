@@ -21,11 +21,11 @@ export function Footer({ profile }: FooterProps) {
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="border-t border-white/10 bg-[#070a0e] py-8 relative"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-slate-400">
+      <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-slate-400">
         
         {/* Brand */}
         <div className="flex items-center gap-2">
-          <span className="font-bold text-white tracking-tight">JUPRI<span className="text-cyan-400">_OPS.</span></span>
+          <span className="text-xl font-black text-white tracking-tighter">JEP.</span>
         </div>
 
         {/* Center Copyright */}
