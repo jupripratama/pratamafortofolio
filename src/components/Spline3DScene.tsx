@@ -73,7 +73,7 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
       z: (Math.random() - 0.5) * 450,
       size: Math.random() * 2.5 + 0.8,
       speed: (Math.random() * 0.01 + 0.005),
-      color: Math.random() > 0.5 ? '#06b6d4' : '#a855f7',
+      color: Math.random() > 0.5 ? '#ef4444' : '#dc2626',
       pulse: Math.random() * Math.PI * 2
     }));
 
@@ -101,8 +101,8 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
 
       // Glow behind the 3D core
       const radialGlow = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, scale * 1.5);
-      radialGlow.addColorStop(0, 'rgba(6, 182, 212, 0.22)');
-      radialGlow.addColorStop(0.5, 'rgba(168, 85, 247, 0.1)');
+      radialGlow.addColorStop(0, 'rgba(239, 68, 68, 0.22)');
+      radialGlow.addColorStop(0.5, 'rgba(220, 38, 38, 0.1)');
       radialGlow.addColorStop(1, 'transparent');
       ctx.fillStyle = radialGlow;
       ctx.fillRect(0, 0, width, height);
@@ -197,7 +197,7 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
         if (i === 0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
       }
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([4, 6]);
       ctx.stroke();
@@ -216,13 +216,13 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
         ctx.lineTo(v2.x, v2.y);
 
         const edgeGrad = ctx.createLinearGradient(v1.x, v1.y, v2.x, v2.y);
-        edgeGrad.addColorStop(0, `rgba(6, 182, 212, ${depthAlpha * 0.9})`);
-        edgeGrad.addColorStop(0.5, `rgba(168, 85, 247, ${depthAlpha * 0.8})`);
-        edgeGrad.addColorStop(1, `rgba(56, 189, 248, ${depthAlpha * 0.9})`);
+        edgeGrad.addColorStop(0, `rgba(239, 68, 68, ${depthAlpha * 0.9})`);
+        edgeGrad.addColorStop(0.5, `rgba(220, 38, 38, ${depthAlpha * 0.8})`);
+        edgeGrad.addColorStop(1, `rgba(185, 28, 28, ${depthAlpha * 0.9})`);
 
         ctx.strokeStyle = edgeGrad;
         ctx.lineWidth = isWireframe ? 1 : 2.2;
-        ctx.shadowColor = '#06b6d4';
+        ctx.shadowColor = '#ef4444';
         ctx.shadowBlur = isWireframe ? 0 : 8;
         ctx.stroke();
         ctx.shadowBlur = 0;
@@ -233,8 +233,8 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
         const nodeAlpha = Math.max(0.3, (v.z + 1.2) / 2.2);
         ctx.beginPath();
         ctx.arc(v.x, v.y, 4.5 * (1 + v.z * 0.3), 0, Math.PI * 2);
-        ctx.fillStyle = '#38bdf8';
-        ctx.shadowColor = '#06b6d4';
+        ctx.fillStyle = '#f87171';
+        ctx.shadowColor = '#ef4444';
         ctx.shadowBlur = 12;
         ctx.globalAlpha = nodeAlpha;
         ctx.fill();
@@ -271,7 +271,7 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative w-full h-[420px] md:h-[480px] rounded-3xl border border-cyan-500/20 bg-gradient-to-b from-[#090d16]/90 to-[#06080e]/95 backdrop-blur-2xl overflow-hidden group shadow-[0_0_50px_-15px_rgba(6,182,212,0.15)] flex flex-col justify-between p-4"
+      className="relative w-full h-[420px] md:h-[480px] rounded-3xl border border-red-500/20 bg-gradient-to-b from-[#160909]/90 to-[#0e0606]/95 backdrop-blur-2xl overflow-hidden group shadow-[0_0_50px_-15px_rgba(239,68,68,0.15)] flex flex-col justify-between p-4"
     >
       {/* Interactive Top Floating Control Bar */}
       <div className="relative z-20 flex items-center justify-between gap-2 px-3 py-2 rounded-2xl bg-slate-900/80 border border-white/10 backdrop-blur-md">
@@ -281,8 +281,8 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
           </div>
-          <span className="text-xs font-mono font-medium text-cyan-300 flex items-center gap-1.5">
-            <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+          <span className="text-xs font-mono font-medium text-red-300 flex items-center gap-1.5">
+            <Cpu className="w-3.5 h-3.5 text-red-400" />
             <span>3D_SPLINE_CORE.v2</span>
           </span>
         </div>
@@ -297,8 +297,8 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
             }}
             className={`px-2.5 py-1 text-xs font-mono rounded-lg transition-all flex items-center gap-1.5 ${
               viewMode === 'canvas'
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                : 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                ? 'bg-red-500/20 text-red-300 border border-red-500/40'
+                : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
             }`}
           >
             {viewMode === 'canvas' ? (
@@ -325,7 +325,7 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
               title="Toggle Wireframe"
               className={`p-1.5 rounded-lg border transition-all text-xs ${
                 isWireframe
-                  ? 'bg-cyan-500 text-black border-cyan-400 font-bold'
+                  ? 'bg-red-500 text-black border-red-400 font-bold'
                   : 'bg-white/5 border-white/10 text-slate-300 hover:text-white'
               }`}
             >
@@ -359,8 +359,8 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
               className="w-full h-full cursor-grab active:cursor-grabbing"
             />
             {/* Holographic overlay watermark */}
-            <div className="pointer-events-none absolute bottom-3 left-4 text-[10px] font-mono text-cyan-400/60 uppercase tracking-widest flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+            <div className="pointer-events-none absolute bottom-3 left-4 text-[10px] font-mono text-red-400/60 uppercase tracking-widest flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" />
               <span>Interactive Monolith • Drag to rotate</span>
             </div>
           </>
@@ -384,7 +384,7 @@ export function Spline3DScene({ customSplineUrl }: Spline3DSceneProps) {
       {/* Bottom Technical Telemetry Bar */}
       <div className="relative z-20 flex items-center justify-between pt-2 border-t border-white/5 text-[11px] font-mono text-slate-400">
         <div className="flex items-center gap-3">
-          <span className="text-cyan-400">60.0 FPS</span>
+          <span className="text-red-400">60.0 FPS</span>
           <span className="hidden sm:inline text-slate-500">|</span>
           <span className="hidden sm:inline">PBR Shader Shading</span>
         </div>

@@ -101,7 +101,7 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           
           {/* ================= LEFT COLUMN: KEYNOTE PRESENTATION SLIDE-IN FROM RIGHT ================= */}
-          <div className="lg:col-span-6 xl:col-span-7 text-left space-y-6">
+          <div className="lg:col-span-6 xl:col-span-6 text-left space-y-6">
             
             {/* Status & Location Pill */}
             <motion.div
@@ -116,7 +116,7 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
               <span className="text-slate-400">SANGATTA, WITA</span>
             </motion.div>
 
-            {/* Brand Title: JUPRI OPS with Gradient Accent */}
+            {/* Brand Title: Jupri Eka Pratama with Gradient Accent */}
             <div className="space-y-2 select-none">
               <motion.h1
                 initial={{ opacity: 0, x: 70, filter: 'blur(10px)' }}
@@ -124,9 +124,9 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
                 transition={{ duration: 0.8, delay: 0.38, ease: [0.16, 1, 0.3, 1] }}
                 className="text-4xl sm:text-5xl lg:text-6xl font-black font-mono tracking-tight text-white flex items-baseline gap-2 flex-wrap cursor-default"
               >
-                <span>JUPRI</span>
+                <span>Jupri</span>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-emerald-400">
-                  OPS
+                  Eka Pratama
                 </span>
               </motion.h1>
 
@@ -240,7 +240,7 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
           </div>
 
           {/* ================= RIGHT COLUMN: INTERACTIVE LANYARD ================= */}
-          <div className="lg:col-span-6 xl:col-span-5 flex justify-center items-center overflow-visible mt-12 sm:mt-16 lg:mt-0 pt-8 sm:pt-10 lg:pt-0">
+          <div className="lg:col-span-6 xl:col-span-6 flex justify-center items-center overflow-visible mt-8 lg:mt-0 pt-0">
             <HangingTagCard profile={profile} onOpenHireModal={onOpenHireModal} isReady={isReady} />
           </div>
 
