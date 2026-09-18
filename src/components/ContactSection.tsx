@@ -1,24 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Mail, 
-  Send, 
-  Phone, 
-  Globe, 
-  CheckCircle2, 
-  Sparkles,
-  ArrowRight,
-  ExternalLink,
-  MessageSquare,
-  Copy,
-  Check,
-  MapPin,
-  Clock,
-  Briefcase,
-  Terminal,
-  Layers,
-  Code2
-} from 'lucide-react';
+import { Mail, Send, Phone, Globe, ExternalLink, MessageSquare, Copy, Check, MapPin, Clock } from 'lucide-react';
 import { ProfileSettings } from '../types';
 import { soundFx } from '../lib/audio';
 
@@ -30,19 +12,10 @@ export function ContactSection({ profile }: ContactSectionProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: 'Full-Stack Project',
     message: ''
   });
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const subjectOptions = [
-    { id: 'Full-Stack Project', label: 'Full-Stack Web', icon: Code2 },
-    { id: 'Backend API', label: 'Backend & API (.NET/Go)', icon: Terminal },
-    { id: 'IoT & Telemetry', label: 'IoT & Telemetri Tambang', icon: Layers },
-    { id: 'Consultation', label: 'Konsultasi / Lainnya', icon: Briefcase },
-  ];
 
   const handleCopyEmail = () => {
     soundFx.playClick();
@@ -53,18 +26,13 @@ export function ContactSection({ profile }: ContactSectionProps) {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) return;
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) return;
 
     soundFx.playClick();
-    setLoading(true);
-
-    setTimeout(() => {
-      soundFx.playSuccess();
-      setLoading(false);
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', subject: 'Full-Stack Project', message: '' });
-      setTimeout(() => setIsSubmitted(false), 8000);
-    }, 900);
+    const subject = encodeURIComponent('Pesan dari ' + formData.name.trim());
+    const body = encodeURIComponent('Nama: ' + formData.name.trim() + '\nEmail: ' + formData.email.trim() + '\n\n' + formData.message.trim());
+    window.location.href = 'mailto:' + (profile.email || 'jupriekapratama@gmail.com') + '?subject=' + subject + '&body=' + body;
+    setIsSubmitted(true);
   };
 
   const waNumber = '6281258661601';
@@ -260,76 +228,23 @@ export function ContactSection({ profile }: ContactSectionProps) {
               <div className="flex items-center justify-between pb-4 mb-6 border-b border-white/10">
                 <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
                   <Mail className="w-4 h-4 text-cyan-400" />
-                  <span className="font-bold uppercase tracking-wider text-white">FORMULIR PESAN & INQUIRY</span>
+                  <span className="font-bold uppercase tracking-wider text-white">Tulis Pesan</span>
                 </div>
-                <span className="text-[11px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-0.5 rounded-full">
-                  FAST RESPONSE
-                </span>
               </div>
 
-              {isSubmitted ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="py-14 text-center space-y-4"
-                >
-                  <div className="w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <h4 className="text-xl font-bold text-white font-mono">Pesan Anda Berhasil Terkirim!</h4>
-                  <p className="text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
-                    Terima kasih telah menghubungi. Notifikasi telah diterima dan saya akan segera merespons ke email Anda dalam waktu maksimal 24 jam.
-                  </p>
-                  <button
-                    onClick={() => setIsSubmitted(false)}
-                    className="mt-4 px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-mono text-white font-bold transition-all"
-                  >
-                    Kirim Pesan Lain
-                  </button>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  
-                  {/* Topic / Subject Chips */}
-                  <div>
-                    <label className="block text-[11px] font-mono text-slate-300 uppercase mb-2.5 font-semibold">
-                      TOPIK / KATEGORI PROYEK
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {subjectOptions.map((opt) => {
-                        const Icon = opt.icon;
-                        const isSelected = formData.subject === opt.id;
-                        return (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            onClick={() => {
-                              soundFx.playClick();
-                              setFormData({ ...formData, subject: opt.id });
-                            }}
-                            className={`p-2.5 rounded-xl text-[11px] font-mono flex flex-col items-center justify-center gap-1.5 border transition-all text-center ${
-                              isSelected
-                                ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 font-bold shadow-[0_0_15px_rgba(6,182,212,0.2)]'
-                                : 'bg-white/[0.02] border-white/10 text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                            }`}
-                          >
-                            <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-cyan-400' : 'text-slate-500'}`} />
-                            <span className="truncate w-full">{opt.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
+              <p className="text-sm text-slate-400 mb-6 leading-relaxed">Punya ide atau ingin bekerja sama? Ceritakan di sini.</p>
+              <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Sender Name & Email Inputs */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-mono text-slate-300 uppercase mb-1.5 font-semibold">
-                        NAMA LENGKAP <span className="text-cyan-400">*</span>
+                      <label htmlFor="contact-name-input" className="block text-[11px] font-mono text-slate-300 uppercase mb-1.5 font-semibold">
+                        NAMA <span className="text-cyan-400">*</span>
                       </label>
                       <input
                         id="contact-name-input"
                         type="text"
+                        autoComplete="name"
+                        name="name"
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -339,12 +254,14 @@ export function ContactSection({ profile }: ContactSectionProps) {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-slate-300 uppercase mb-1.5 font-semibold">
-                        ALAMAT EMAIL <span className="text-cyan-400">*</span>
+                      <label htmlFor="contact-email-input" className="block text-[11px] font-mono text-slate-300 uppercase mb-1.5 font-semibold">
+                        EMAIL <span className="text-cyan-400">*</span>
                       </label>
                       <input
                         id="contact-email-input"
                         type="email"
+                        autoComplete="email"
+                        name="email"
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -357,12 +274,9 @@ export function ContactSection({ profile }: ContactSectionProps) {
                   {/* Message Textarea */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-[11px] font-mono text-slate-300 uppercase font-semibold">
-                        DETAIL PESAN ATAU KEBUTUHAN <span className="text-cyan-400">*</span>
+                      <label htmlFor="contact-message-input" className="text-[11px] font-mono text-slate-300 uppercase font-semibold">
+                        PESAN <span className="text-cyan-400">*</span>
                       </label>
-                      <span className="text-[10px] font-mono text-slate-500">
-                        {formData.message.length} karakter
-                      </span>
                     </div>
                     <textarea
                       id="contact-message-input"
@@ -379,24 +293,15 @@ export function ContactSection({ profile }: ContactSectionProps) {
                   <button
                     id="contact-submit-btn"
                     type="submit"
-                    disabled={loading}
                     className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-400 to-emerald-400 hover:from-cyan-300 hover:via-sky-300 hover:to-emerald-300 text-black font-mono font-bold text-xs tracking-wider transition-all shadow-[0_0_25px_rgba(6,182,212,0.35)] hover:shadow-[0_0_35px_rgba(6,182,212,0.55)] active:scale-[0.98] flex items-center justify-center gap-2 mt-4 cursor-pointer disabled:opacity-60"
                   >
-                    {loading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                        MEMPROSES & MENGIRIM...
-                      </span>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>KIRIM PESAN SEKARANG</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
+                    <Send className="w-4 h-4" />
+                    <span>Lanjut ke Email</span>
                   </button>
                 </form>
-              )}
+              <p className="mt-4 text-xs leading-relaxed text-slate-400" role="status">
+                {isSubmitted ? 'Silakan kirim dari aplikasi email. Jika tidak terbuka, hubungi alamat email yang tercantum. Isian kamu tetap ada di formulir.' : 'Pesan akan dibuka di aplikasi email untuk kamu tinjau dan kirim.'}
+              </p>
             </div>
           </motion.div>
 

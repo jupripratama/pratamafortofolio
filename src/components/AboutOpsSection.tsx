@@ -1,13 +1,9 @@
 import { motion } from 'motion/react';
-import { 
-  Terminal, 
-  Cpu, 
-  ShieldCheck, 
-  Radio, 
-  Activity, 
+import {
+  ShieldCheck,
+  Radio,
   ArrowRight,
-  HardDrive,
-  Flame
+  Layers
 } from 'lucide-react';
 import { ProfileSettings } from '../types';
 import { soundFx } from '../lib/audio';
@@ -21,11 +17,11 @@ export function AboutOpsSection({ profile, onOpenHireModal }: AboutOpsSectionPro
   return (
     <section id="about" className="pt-6 pb-20 lg:pt-20 relative overflow-hidden bg-transparent">
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 relative z-10">
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
+
           {/* Left Column: Narrative Statement with Presentation Slide-In */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -40, filter: 'blur(6px)' }}
             whileInView={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
             viewport={{ once: true, margin: '-60px' }}
@@ -33,15 +29,15 @@ export function AboutOpsSection({ profile, onOpenHireModal }: AboutOpsSectionPro
             className="lg:col-span-7 space-y-6 text-left"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white font-mono tracking-tight leading-tight">
-              Operasional <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-emerald-400">Tanpa Hambatan</span>
+              Tentang <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-emerald-400">Saya</span>
             </h2>
 
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              Saya membangun sistem internal dan pipeline data yang tangguh untuk lokasi industri. Fokus saya adalah mengubah data mentah dari lapangan menjadi informasi yang dapat ditindaklanjuti dengan cepat dan akurat.
+              Saya Jupri Eka Pratama, lulusan Sistem Informasi dengan pengalaman lebih dari empat tahun di bidang pemrograman. Saya mengembangkan aplikasi backend dan mobile menggunakan TypeScript, PHP, SQL, Go, dan .NET.
             </p>
 
             <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Dari pencatatan log harian hingga monitoring kesehatan alat berat dan infrastruktur telekomunikasi, kode yang saya tulis dirancang untuk stabilitas maksimal di lingkungan operasional dengan konektivitas terbatas.
+              Selain pengembangan aplikasi, saya berpengalaman menangani infrastruktur IT, jaringan, CCTV, dan radio komunikasi. Saat ini saya bekerja di bagian PM dan dokumentasi di PT Multi Kontrol Nusantara serta berkontribusi sebagai backend developer di PinisiDev Tech.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -81,30 +77,65 @@ export function AboutOpsSection({ profile, onOpenHireModal }: AboutOpsSectionPro
               {/* Specs Table List */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-500 uppercase tracking-wider">Operator</span>
+                  <span className="text-slate-500 uppercase tracking-wider text-[11px]">Operator</span>
                   <span className="font-bold text-white text-right">Jupri Eka Pratama</span>
                 </div>
 
                 <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-500 uppercase tracking-wider">PT</span>
-                  <span className="text-slate-200 text-right">PT Multi Kontrol Nusantara</span>
+                  <span className="text-slate-500 uppercase tracking-wider text-[11px]">Base / Dom</span>
+                  <span className="text-cyan-300 font-medium text-right text-[11px]">KPC Sangatta & Remote</span>
                 </div>
 
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-500 uppercase tracking-wider">DOM</span>
-                  <span className="text-cyan-300 font-medium text-right">KPC SANGATTA, KUTAI TIMUR</span>
+                {/* Active Assignments Header */}
+                <div className="pt-1.5">
+                  <div className="flex items-center justify-between pb-2 text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                    <span className="flex items-center gap-1.5">
+                      <Layers className="w-3 h-3 text-emerald-400" />
+                      <span>Current Deployments</span>
+                    </span>
+                    <span className="text-emerald-400/90 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] font-semibold">
+                      2 Active Roles
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {/* Node 1: PT Multi Kontrol Nusantara */}
+                    <div className="p-3 rounded-xl bg-emerald-500/[0.05] border border-emerald-500/25 hover:border-emerald-500/40 transition-colors">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-slate-300 font-medium truncate">PT Multi Kontrol Nusantara</span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30 shrink-0">On-Site</span>
+                      </div>
+                      <div className="text-white font-bold text-xs mt-1.5 flex items-center gap-1.5">
+                        <span className="text-emerald-400">›</span>
+                        <span>PM & Documentation</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1 pl-3">
+                        Telecom, CCTV & IT Infrastructure
+                      </div>
+                    </div>
+
+                    {/* Node 2: PinisiDev */}
+                    <div className="p-3 rounded-xl bg-cyan-500/[0.05] border border-cyan-500/25 hover:border-cyan-500/40 transition-colors">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-slate-300 font-medium truncate">PinisiDev Tech</span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30 shrink-0">Remote</span>
+                      </div>
+                      <div className="text-white font-bold text-xs mt-1.5 flex items-center gap-1.5">
+                        <span className="text-cyan-400">›</span>
+                        <span>Backend Developer</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1 pl-3">
+                        Golang, NestJS, .NET & API Services
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex justify-between items-center py-1.5 border-b border-white/5">
-                  <span className="text-slate-500 uppercase tracking-wider">Role</span>
-                  <span className="text-slate-200 text-right">Fullstack Dev & Telecom Spec.</span>
-                </div>
-
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-slate-500 uppercase tracking-wider">Status</span>
+                <div className="flex justify-between items-center pt-2.5 border-t border-white/5">
+                  <span className="text-slate-500 uppercase tracking-wider text-[11px]">Status</span>
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>+ online</span>
+                    <span>+ online (dual active)</span>
                   </div>
                 </div>
               </div>

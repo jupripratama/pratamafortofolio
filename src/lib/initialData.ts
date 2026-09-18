@@ -5,13 +5,13 @@ export const INITIAL_PROFILE: ProfileSettings = {
   handle: "@jupriekapratama",
   tagline: "Full-Stack Developer & Backend Specialist | IT Infrastructure & Telecommunication",
   heroHeadline: "Building Resilient Backend Architectures, Modern Web Systems & Telecommunication Networks",
-  bio: "Halo! Saya Jupri Eka Pratama, seorang Full-Stack Developer & Backend Specialist lulusan Sarjana Sistem Informasi (S.Kom) dari STMIK Borneo Internasional Balikpapan. Berpengalaman di bidang software engineering (C# .NET 8, Golang, NestJS, React, TypeScript), database management, serta pengelolaan infrastruktur teknis CCTV & Radio Komunikasi di PT. Multi Kontrol Nusantara dan Pinisidev Bulukumba Tech.",
-  avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
+  bio: "Saya Jupri Eka Pratama, lulusan Sistem Informasi dengan pengalaman lebih dari empat tahun di bidang pemrograman. Saya mengembangkan aplikasi backend dan mobile, serta memiliki pengalaman dalam infrastruktur IT, jaringan, CCTV, dan radio komunikasi.",
+  avatarUrl: "/assets/profile-avatar.jpg",
   location: "Sangatta, Kalimantan Timur, Indonesia",
   timezone: "Asia/Makassar (WITA / UTC+8)",
   statusText: "🟢 Open for Full-Stack, Backend & Enterprise Roles",
   isAvailableForHire: true,
-  resumeUrl: "https://jupriekapratama.web.id",
+  resumeUrl: "/assets/CV Jupri Eka Pratama.pdf",
   email: "jupriekapratama@gmail.com",
   githubUrl: "https://github.com/jupriekapratama",
   linkedinUrl: "https://linkedin.com/in/jupriekapratama",
@@ -29,110 +29,103 @@ export const INITIAL_PROFILE: ProfileSettings = {
   }
 };
 
+// PM Dashboard and Pinisidev: https://jupriekapratama.web.id/
+// Additional projects and updated PM Dashboard image: owner-provided descriptions and screenshots.
 export const INITIAL_PROJECTS: Project[] = [
   {
-    id: "proj-1",
-    title: "LamzDev AI Private Workspace",
-    subtitle: "Workspace AI privat dengan akses berbasis undangan & multi-provider",
-    description: "Workspace AI privat dengan akses berbasis undangan, pilihan provider dan model, riwayat percakapan, unggah dokumen, serta pemantauan terpusat melalui halaman admin.",
-    category: "fullstack",
-    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
-    tags: ["React", "Node.js", "MySQL", "Multi-provider AI"],
-    demoUrl: "https://jupriekapratama.web.id",
-    githubUrl: "https://github.com/jupriekapratama/lamzdev-ai-workspace",
-    featured: true,
-    year: "2026",
-    stars: 142,
-    role: "Fullstack Architect",
-    features: [
-      "Multi-provider LLM routing (Gemini, Claude, OpenAI) dengan token optimizer",
-      "Sistem undangan privat terenkripsi & RBAC role permission",
-      "RAG document search & intelligent context retrieval",
-      "Admin monitoring dashboard untuk log konsumsi API & audit trail"
+    "id": "pm-dashboard",
+    "title": "PM Dashboard",
+    "subtitle": "Web Application",
+    "role": "Full-Stack Developer",
+    "description": "Aplikasi dashboard profesional dengan backend C# .NET 8 serta frontend React dan TypeScript. Menggunakan Vite dan Tailwind CSS untuk antarmuka yang responsif dan pengembangan yang efisien.",
+    "category": "fullstack",
+    "image": "/assets/project-pm-dashboard-latest.png",
+    "tags": [
+      "C#",
+      ".NET 8",
+      "Vite",
+      "React",
+      "TypeScript",
+      "Tailwind CSS"
     ],
-    metrics: [
-      { label: "Providers", value: "Multi-LLM" },
-      { label: "Security", value: "End-to-End" },
-      { label: "DB", value: "MySQL" }
-    ]
+    "featured": true,
+    "year": ""
   },
   {
-    id: "proj-2",
-    title: "CampusFlow — Academic Dashboard",
-    subtitle: "Aplikasi akademik jadwal, tugas, dan perkembangan IPK mahasiswa",
-    description: "Aplikasi akademik untuk menyatukan jadwal kuliah, tugas, tenggat, perkembangan IPK, dan rencana belajar mahasiswa dalam satu dashboard responsif.",
-    category: "fullstack",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
-    tags: ["React", "Node.js", "MySQL", "Chart.js"],
-    demoUrl: "https://jupriekapratama.web.id",
-    githubUrl: "https://github.com/jupriekapratama/campusflow-dashboard",
-    featured: true,
-    year: "2025 - 2026",
-    stars: 185,
-    role: "Fullstack Engineer",
-    features: [
-      "Visualisasi tren IPK per semester & target kelulusan interaktif",
-      "Sinkronisasi jadwal kuliah otomatis dengan kalender digital",
-      "Kanban board manajemen tugas & notifikasi deadline otomatis",
-      "UI responsif mobile-first untuk akses praktis di smartphone"
+    "id": "pinisidev-team",
+    "title": "Pinisidev Team",
+    "subtitle": "Startup & Komunitas",
+    "role": "Backend Developer",
+    "description": "Komunitas IT Pemuda Pemudi Bulukumba — “From `null` to be `cool`”. Membangun karya digital untuk menolong banyak orang, termasuk aplikasi mobile, website, dan solusi manajemen aset.",
+    "category": "backend",
+    "image": "/assets/project-pinisidev.png",
+    "tags": [
+      "Startup",
+      "Community",
+      "Web",
+      "Mobile",
+      "Desktop",
+      "Collaboration"
     ],
-    metrics: [
-      { label: "Analytics", value: "Chart.js" },
-      { label: "Status", value: "Active" },
-      { label: "Database", value: "MySQL" }
-    ]
+    "demoUrl": "https://pinisidev.web.id/",
+    "featured": true,
+    "year": ""
   },
   {
-    id: "proj-3",
-    title: "CommerceOps — Operations Dashboard",
-    subtitle: "Dashboard operasional e-commerce, fulfillment, & stok menipis",
-    description: "Dashboard operasional e-commerce yang merangkum pendapatan, pesanan lintas kanal, status fulfillment, stok menipis, dan produk terlaris.",
-    category: "backend",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
-    tags: ["React", "Express.js", "MySQL", "Chart.js"],
-    demoUrl: "https://jupriekapratama.web.id",
-    githubUrl: "https://github.com/jupriekapratama/commerce-ops",
+    id: "ksp-berkat",
+    title: "KSP Berkat",
+    subtitle: "Mobile & Desktop Application",
+    description: "Aplikasi mobile untuk pengguna dan desktop admin Koperasi Simpan Pinjam Berkat, salah satu KSP terbesar di Sulawesi Selatan.",
+    category: "mobile",
+    image: "/assets/project-ksp-berkat.png",
+    tags: ["Mobile", "Desktop", "Koperasi Simpan Pinjam"],
     featured: true,
-    year: "2025",
-    stars: 120,
-    role: "Backend Specialist",
-    features: [
-      "Aggregator omset harian lintas kanal e-commerce & rekonsiliasi pembayaran",
-      "Pelacakan fulfillment order real-time dengan status workflow otomatis",
-      "Early warning system untuk stok menipis & buffer alert",
-      "Export laporan analitik finansial & performa SKU produk"
-    ],
-    metrics: [
-      { label: "Throughput", value: "High-load" },
-      { label: "Backend", value: "Express.js" },
-      { label: "Database", value: "MySQL" }
-    ]
+    year: ""
   },
   {
-    id: "proj-4",
-    title: "SotoKU — Aplikasi Kasir Warung Soto",
-    subtitle: "Aplikasi kasir offline, printer Bluetooth, & laporan penjualan",
-    description: "Aplikasi kasir offline untuk mengelola penjualan, produk, inventori, transaksi, dashboard pendapatan, cetak struk, dan printer Bluetooth.",
+    id: "asn-company-profile",
+    title: "ASN",
+    subtitle: "Company Profile",
+    description: "Website company profile CV Agape Sinar Nirwana (ASN), penyedia solusi pengadaan kebutuhan pertambangan dan industri.",
     category: "frontend",
-    image: "https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=800&auto=format&fit=crop&q=80",
-    tags: ["Flutter", "Dart", "SQLite", "Riverpod"],
-    demoUrl: "https://jupriekapratama.web.id",
-    githubUrl: "https://github.com/jupriekapratama/sotoku-pos",
+    image: "/assets/project-asn.png",
+    tags: ["Company Profile", "Web", "Supplier & Mining Support"],
     featured: true,
-    year: "2024",
-    stars: 156,
-    role: "Mobile & POS Developer",
-    features: [
-      "Offline-first POS engine didukung database lokal SQLite tanpa latency",
-      "Integrasi cetak struk via thermal printer Bluetooth ESC/POS",
-      "Katalog variasi menu cepat & penghitungan diskon/pajak instan",
-      "Rekap penjualan harian, shift kasir, dan ringkasan laba kotor"
-    ],
-    metrics: [
-      { label: "Architecture", value: "Riverpod" },
-      { label: "Storage", value: "SQLite Offline" },
-      { label: "Platform", value: "Flutter" }
-    ]
+    year: ""
+  },
+  {
+    id: "mkn-site-online",
+    title: "MKN Site Online",
+    subtitle: "Aplikasi Operasional",
+    description: "Aplikasi operasional PT Multi Kontrol Nusantara untuk mengelola pekerjaan HR, operasi telekomunikasi, workshop, dan proyek dalam satu ruang kerja.",
+    category: "fullstack",
+    image: "/assets/project-mkn-site.png",
+    tags: ["Operasional", "HR", "Telekomunikasi", "Workshop"],
+    featured: true,
+    year: ""
+  },
+  {
+    id: "mkn-web-portal",
+    title: "Web Portal MKN",
+    subtitle: "Portal Aplikasi & Layanan",
+    description: "Portal terintegrasi PT Multi Kontrol Nusantara yang menyatukan akses ke berbagai aplikasi dan layanan operasional, dilengkapi pencarian untuk menemukan sistem yang dibutuhkan.",
+    category: "frontend",
+    image: "/assets/project-mkn-portal.png",
+    tags: ["Web Portal", "Integrasi Layanan", "Operasional"],
+    demoUrl: "https://portal.mknops.web.id/",
+    featured: true,
+    year: ""
+  },
+  {
+    id: "crypto-wallet",
+    title: "Crypto Wallet",
+    subtitle: "Web 3.0 Wallet",
+    description: "Wallet Web 3.0 untuk aset kripto, tersedia dalam versi mobile, web, dan browser extension.",
+    category: "fullstack",
+    image: "/assets/project-crypto-wallet.webp",
+    tags: ["Web 3.0", "Mobile", "Web", "Browser Extension"],
+    featured: true,
+    year: ""
   }
 ];
 
@@ -233,11 +226,18 @@ export const INITIAL_EXPERIENCES: Experience[] = [
 export const INITIAL_EDUCATIONS: Education[] = [
   {
     id: "edu-1",
-    degree: "Sarjana Komputer (S.Kom) - Sistem Informasi",
-    institution: "STMIK Borneo Internasional Balikpapan",
-    period: "2015 - 2019",
-    gpa: "Lulusan Sarjana",
-    description: "Fokus studi pada Rekayasa Perangkat Lunak, Arsitektur Sistem Informasi Perusahaan, Manajemen Basis Data, dan Infrastruktur Jaringan. Penulis publikasi ilmiah 'Analisis Kepuasan Pengguna Game Multiplayer Online Battle Arena Mobile Legends dan Arena of Valor' pada J-SIM (Jurnal Sistem Informasi, Okt 2019)."
+    degree: "Sistem Informasi",
+    institution: "STMIK Borneo Internasional",
+    period: "2019",
+    gpa: "3,46",
+    description: ""
+  },
+  {
+    id: "edu-2",
+    degree: "Informatika Komputer",
+    institution: "LP3I Balikpapan",
+    period: "2015",
+    description: ""
   }
 ];
 

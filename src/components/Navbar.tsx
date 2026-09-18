@@ -1,20 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Sparkles, 
-  Layers, 
-  Briefcase, 
-  Mail, 
-  Database, 
-  Volume2, 
-  VolumeX, 
-  Menu, 
-  X,
-  Code2,
-  Tag,
-  Terminal,
-  MessageSquareQuote
-} from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { ProfileSettings } from '../types';
 import { soundFx } from '../lib/audio';
 
@@ -38,7 +24,6 @@ export function Navbar({
   isReady = true,
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAudioMuted, setIsAudioMuted] = useState(false);
 
   const navItems = [
     { id: 'about', label: 'Tentang' },
@@ -55,11 +40,6 @@ export function Navbar({
     setMobileMenuOpen(false);
   };
 
-  const toggleSound = () => {
-    const next = !isAudioMuted;
-    setIsAudioMuted(next);
-    soundFx.setMuted(next);
-  };
 
   return (
     <motion.header 
@@ -68,7 +48,7 @@ export function Navbar({
       transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-10 lg:px-14 xl:px-20 py-3.5 transition-all duration-300"
     >
-      <div className="w-full flex items-center justify-between">
+      <div className="relative w-full flex items-center justify-between">
         
         {/* JEP identity and location. */}
         <button
@@ -88,7 +68,7 @@ export function Navbar({
         </button>
 
         {/* Desktop Center Navigation Links */}
-        <nav className="hidden xl:flex items-center gap-1 px-4 py-1.5 rounded-full bg-[#090d16]/85 backdrop-blur-2xl border border-white/10 shadow-xl shadow-black/40">
+        <nav className="hidden xl:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 px-4 py-1.5 rounded-full bg-[#090d16]/85 backdrop-blur-2xl border border-white/10 shadow-xl shadow-black/40">
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
             return (
@@ -116,53 +96,8 @@ export function Navbar({
           })}
         </nav>
 
-        {/* Right Action Tools */}
-        <div className="flex items-center gap-2">
-          {/* Reboot Linux Terminal Button */}
-          {onReboot && (
-            <button
-              id="nav-reboot-terminal-btn"
-              onClick={() => {
-                soundFx.playClick();
-                onReboot();
-              }}
-              aria-label="Reboot Linux Terminal"
-              className="p-1.5 px-2 rounded-xl bg-[#090d16]/90 backdrop-blur-xl border border-white/10 hover:border-cyan-500/40 text-slate-400 hover:text-cyan-300 flex items-center gap-1 transition-all shadow-md shadow-black/30 font-mono text-[11px]"
-              title="Jalankan ulang Linux Boot Sequence"
-            >
-              <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden lg:inline text-[10px]">BOOT</span>
-            </button>
-          )}
-
-          {/* Sound Toggle */}
-          <button
-            id="nav-sound-toggle-btn"
-            onClick={toggleSound}
-            aria-label={isAudioMuted ? 'Aktifkan Suara' : 'Matikan Suara'}
-            className="w-8 h-8 rounded-xl bg-[#090d16]/90 backdrop-blur-xl border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-white flex items-center justify-center transition-all shadow-md shadow-black/30"
-          >
-            {isAudioMuted ? (
-              <VolumeX className="w-3.5 h-3.5 text-rose-400" />
-            ) : (
-              <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
-            )}
-          </button>
-
-          {/* Admin CMS Studio Button */}
-          <button
-            id="open-admin-studio-btn"
-            onClick={() => {
-              soundFx.playClick();
-              onOpenAdmin();
-            }}
-            className="px-2.5 py-1.5 rounded-xl bg-[#090d16]/90 backdrop-blur-xl border border-cyan-500/20 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 font-mono text-[11px] flex items-center gap-1.5 transition-all shadow-md shadow-black/30"
-            title="Buka Supabase Admin CMS Studio"
-          >
-            <Database className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden sm:inline">CMS</span>
-          </button>
-
+        {/* Compact navigation */}
+        <div className="xl:hidden flex items-center gap-2">
           {/* Mobile Menu Toggle */}
           <button
             id="mobile-menu-toggle-btn"

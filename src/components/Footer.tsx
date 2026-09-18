@@ -14,7 +14,7 @@ export function Footer({ profile }: FooterProps) {
   };
 
   return (
-    <motion.footer 
+    <motion.footer
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -22,7 +22,7 @@ export function Footer({ profile }: FooterProps) {
       className="border-t border-white/10 bg-[#070a0e] py-8 relative"
     >
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-slate-400">
-        
+
         {/* Brand */}
         <div className="flex items-center gap-2">
           <span className="text-xl font-black text-white tracking-tighter">JEP.</span>
@@ -30,7 +30,7 @@ export function Footer({ profile }: FooterProps) {
 
         {/* Center Copyright */}
         <div className="text-center text-[11px] text-slate-400 tracking-wider">
-          © 2026 - DESIGNED &amp; BUILT WITH PASSION
+          © 2025 - JUPRI EKA PRATAMA S.Kom
         </div>
 
         {/* Back to top button */}

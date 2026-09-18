@@ -254,7 +254,12 @@ export const DataStore = {
         }
       } catch {}
     }
-    return getLocalData<ProfileSettings>('profile', INITIAL_PROFILE);
+    const local = getLocalData<ProfileSettings>('profile', INITIAL_PROFILE);
+    if (!local.avatarUrl || local.avatarUrl.includes('unsplash.com')) {
+      local.avatarUrl = INITIAL_PROFILE.avatarUrl;
+      setLocalData('profile', local);
+    }
+    return local;
   },
 
   async saveProfile(profile: ProfileSettings): Promise<void> {

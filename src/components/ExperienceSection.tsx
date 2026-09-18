@@ -6,7 +6,7 @@ interface ExperienceSectionProps {
   educations: Education[];
 }
 
-const referenceOrder = ['PM & Documentation', 'Jr. Teknisi CCTV & Radio Komunikasi', 'Backend Developer', 'IT Operator'];
+const referenceOrder = ['PM & Documentation', 'Backend Developer', 'Jr. Teknisi CCTV & Radio Komunikasi', 'IT Operator'];
 const formatPeriod = (period: string) => period
   .replace(/Present/gi, 'Sekarang')
   .replace(/\bApr\b/g, 'April')
@@ -32,7 +32,8 @@ export function ExperienceSection({ experiences, educations }: ExperienceSection
                 <p className="mb-2 text-xs font-mono text-cyan-400">{formatPeriod(education.period)}</p>
                 <h3 className="text-base font-semibold text-slate-100">{education.degree}</h3>
                 <p className="mt-1 text-sm text-cyan-300">{education.institution}</p>
-                <p className="mt-3 text-sm leading-7 text-slate-400">{education.description}</p>
+                {education.gpa && <p className="mt-2 text-sm text-slate-400">IPK {education.gpa}</p>}
+                {education.description && <p className="mt-3 text-sm leading-7 text-slate-400">{education.description}</p>}
               </li>
             ))}
           </ol>

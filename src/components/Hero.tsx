@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { 
   ArrowRight, 
-  Terminal, 
   Globe, 
   Code2, 
   Mail, 
-  Layers, 
-  Send,
   Linkedin,
-  Github,
-  PhoneCall,
-  Sparkles
+  FileDown
 } from 'lucide-react';
 import { ProfileSettings } from '../types';
 import { HangingTagCard } from './HangingTagCard';
@@ -35,6 +30,7 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
     query.addEventListener('change', update);
     return () => query.removeEventListener('change', update);
   }, []);
+
   const roleText = 'Backend & Full-stack Developer';
   const [displayedText, setDisplayedText] = useState('');
   const [isScrambling, setIsScrambling] = useState(false);
@@ -104,9 +100,6 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
       id="hero" 
       className="relative min-h-[100svh] flex items-center justify-center pt-24 pb-0 lg:pb-16 overflow-hidden bg-transparent"
     >
-      <div className="absolute top-1/4 left-10 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
       {/* Interaction spans the entire opening screen, including its gutters. */}
       {!isCompact && (
         <div className="absolute inset-0 pointer-events-none z-10">
@@ -170,7 +163,7 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
               transition={{ duration: 0.8, delay: 0.62, ease: [0.16, 1, 0.3, 1] }}
               className="text-slate-300 text-sm sm:text-base max-w-xl leading-relaxed font-sans"
             >
-              Merancang dan membangun aplikasi web modern dari antarmuka responsif hingga sistem backend yang cepat, aman, dan dapat diandalkan untuk operasi pertambangan dan industri.
+              Mengembangkan aplikasi web dan mobile dengan pengalaman di bidang backend serta infrastruktur IT. Menghubungkan kebutuhan pengguna dengan solusi teknologi yang praktis.
             </motion.p>
 
             {/* Action Buttons */}
@@ -204,15 +197,15 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
               </button>
             </motion.div>
 
-            {/* Social Pill Icons */}
+            {/* Social & Download CV Row */}
             <motion.div
               initial={{ opacity: 0, x: 50, filter: 'blur(6px)' }}
               animate={isReady ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: 50, filter: 'blur(6px)' }}
               transition={{ duration: 0.8, delay: 0.86, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center gap-2.5 pt-2"
+              className="flex flex-wrap items-center gap-2.5 pt-2"
             >
               <a
-                href={profile.resumeUrl}
+                href={profile.resumeUrl || '/assets/CV Jupri Eka Pratama.pdf'}
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => soundFx.playClick()}
@@ -251,6 +244,20 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
                 title="LinkedIn Profile"
               >
                 <Linkedin className="w-4 h-4" />
+              </a>
+
+              {/* Download CV Button */}
+              <a
+                href="/assets/CV Jupri Eka Pratama.pdf"
+                download="CV_Jupri_Eka_Pratama.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => soundFx.playClick()}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500/10 via-sky-500/10 to-emerald-500/10 hover:from-cyan-500/20 hover:to-emerald-500/20 text-cyan-300 hover:text-white border border-cyan-500/30 hover:border-cyan-400 text-xs font-mono font-semibold transition-all shadow-md shadow-black/30 hover:shadow-cyan-500/20 active:scale-95 cursor-pointer ml-1"
+                title="Download CV Jupri Eka Pratama (PDF)"
+              >
+                <FileDown className="w-4 h-4 text-cyan-400" />
+                <span>Download CV</span>
               </a>
             </motion.div>
 

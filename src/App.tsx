@@ -134,7 +134,7 @@ export default function App() {
         <LandingRevealEffect onFinish={() => setShowEntranceFX(false)} />
       )}
 
-      {/* Custom Cyber Cursor */}
+      {/* Cyber Cursor with Background Flashlight Revealer */}
       <CustomCursor />
 
       {/* Global Navbar */}

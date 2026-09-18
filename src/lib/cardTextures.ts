@@ -75,10 +75,10 @@ export function createProfileCardTexture(
     ctx.drawImage(photoImg, sX, sY, sW, sH, frontX, photoY, frontW, photoH);
 
     // Smooth dark vignette at the bottom for typography contrast
-    const photoVignette = ctx.createLinearGradient(frontX, photoY + photoH * 0.45, frontX, photoY + photoH);
+    const photoVignette = ctx.createLinearGradient(frontX, photoY + photoH * 0.58, frontX, photoY + photoH);
     photoVignette.addColorStop(0, 'rgba(4, 6, 10, 0)');
-    photoVignette.addColorStop(0.6, 'rgba(4, 6, 10, 0.75)');
-    photoVignette.addColorStop(0.85, 'rgba(4, 6, 10, 0.95)');
+    photoVignette.addColorStop(0.45, 'rgba(4, 6, 10, 0.65)');
+    photoVignette.addColorStop(0.8, 'rgba(4, 6, 10, 0.92)');
     photoVignette.addColorStop(1, '#04060a');
     ctx.fillStyle = photoVignette;
     ctx.fillRect(frontX, photoY, frontW, photoH);
@@ -89,19 +89,19 @@ export function createProfileCardTexture(
   // Front Typography at the bottom matching reference image
   const textCenterY = frontY + frontH - 180;
   
-  // Title: "FullStack"
+  // Title: "Full-Stack"
   ctx.fillStyle = '#ffffff';
-  ctx.font = '900 88px "Inter", "Segoe UI", sans-serif';
+  ctx.font = '900 86px "Inter", "Segoe UI", sans-serif';
   ctx.textAlign = 'center';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
   ctx.shadowBlur = 24;
-  ctx.fillText('FullStack', frontX + frontW / 2, textCenterY);
+  ctx.fillText('Full-Stack', frontX + frontW / 2, textCenterY);
 
-  // Subtitle: "Web Developer"
+  // Subtitle: "Developer"
   ctx.fillStyle = '#f8fafc';
-  ctx.font = 'bold 50px "Inter", "Segoe UI", sans-serif';
+  ctx.font = 'bold 54px "Inter", "Segoe UI", sans-serif';
   ctx.shadowBlur = 18;
-  ctx.fillText('Web Developer', frontX + frontW / 2, textCenterY + 68);
+  ctx.fillText('Developer', frontX + frontW / 2, textCenterY + 68);
   ctx.shadowBlur = 0;
 
   ctx.restore();
@@ -242,8 +242,10 @@ export function createProfileCardTexture(
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.flipY = false;
+  texture.generateMipmaps = false;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
   texture.anisotropy = 16;
-  texture.generateMipmaps = true;
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.needsUpdate = true;
   return texture;
@@ -294,7 +296,8 @@ export function createLanyardBandTexture(brandText = 'JUPRI EKA PRATAMA'): THREE
   texture.flipY = false;
   texture.wrapS = THREE.ClampToEdgeWrapping;
   texture.wrapT = THREE.ClampToEdgeWrapping;
-  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.generateMipmaps = false;
+  texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
   texture.anisotropy = 16;
   texture.colorSpace = THREE.SRGBColorSpace;

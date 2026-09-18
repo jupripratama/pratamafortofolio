@@ -57,9 +57,6 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
   const j3 = useRef<any>(null);
   const card = useRef<any>(null);
 
-  const flipRotation = useMemo(() => new THREE.Quaternion(), []);
-  const flipTarget = useMemo(() => new THREE.Quaternion(), []);
-  const flipAxis = useMemo(() => new THREE.Vector3(0, 1, 0), []);
   const quat = useMemo(() => new THREE.Quaternion(), []);
   const clampTop = useMemo(() => new THREE.Vector3(), []);
   const guide = useMemo(() => new THREE.Vector3(), []);
@@ -78,8 +75,8 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
     type: 'dynamic' as const,
     canSleep: true,
     colliders: false as const,
-    angularDamping: 4,
-    linearDamping: 4,
+    angularDamping: 0.8,
+    linearDamping: 0.65,
   }), []);
 
   const { nodes, materials } = useGLTF(GLTF_PATH) as any;
@@ -154,9 +151,10 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
       if (canvas.hasPointerCapture(session.pointerId)) canvas.releasePointerCapture(session.pointerId);
       const body = card.current;
       if (body) {
+        // Preserve the simulated drag velocity so release continues the swing.
+        const velocity = { ...body.linvel() };
         body.setBodyType(rapier.RigidBodyType.Dynamic, true);
-        body.setLinvel({ x: 0, y: 0, z: 0 }, true);
-        body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+        body.setLinvel(velocity, true);
       }
       drag(false);
     };
@@ -205,19 +203,22 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
       });
     }
 
-    if (card.current) {
-      if (!session) {
-        try {
-          flipRotation.copy(card.current.rotation());
-          flipTarget.setFromAxisAngle(flipAxis, flipped ? Math.PI : 0);
-          if (flipRotation.angleTo(flipTarget) > 0.001) {
-            flipRotation.slerp(flipTarget, 1 - Math.exp(-8 * Math.min(delta, 0.05)));
-            card.current.setRotation(flipRotation, true);
-          }
-          card.current.setAngvel({ x: 0, y: 0, z: 0 }, false);
-        } catch {
-          // ignore
-        }
+    if (card.current && !session) {
+      // Gently steer only the facing direction; physics owns tilt and swing.
+      const rotation = card.current.rotation();
+      const velocity = card.current.angvel();
+      const yaw = Math.atan2(
+        2 * (rotation.w * rotation.y + rotation.x * rotation.z),
+        1 - 2 * (rotation.y * rotation.y + rotation.x * rotation.x),
+      );
+      const target = flipped ? Math.PI : 0;
+      const error = Math.atan2(Math.sin(target - yaw), Math.cos(target - yaw));
+      if (Math.abs(error) > 0.002 || Math.abs(velocity.y) > 0.002) {
+        card.current.setAngvel({
+          x: velocity.x,
+          y: velocity.y + (12 * error - 4 * velocity.y) * Math.min(delta, 0.05),
+          z: velocity.z,
+        }, true);
       }
     }
   }, -3);
@@ -263,7 +264,6 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
           ref={card}
           {...segmentProps}
           type="dynamic"
-          enabledRotations={[false, true, false]}
         >
           <CuboidCollider args={[0.92, 1.3, 0.01]} />
           <group
@@ -301,10 +301,9 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
               <meshPhysicalMaterial
                 map={activeCardTexture}
                 map-anisotropy={16}
-                clearcoat={1}
-                clearcoatRoughness={0.15}
-                roughness={0.3}
-                metalness={0.5}
+                clearcoat={0}
+                roughness={0.35}
+                metalness={0.0}
               />
             </mesh>
             <mesh
@@ -362,50 +361,28 @@ export function HangingTagCard({ profile, isReady = true }: HangingTagCardProps)
           >
               <CardCamera />
               <Suspense fallback={null}>
-                <ambientLight intensity={Math.PI} />
+                <ambientLight intensity={1.75} />
                 <Physics interpolate updatePriority={-2} gravity={[0, -40, 0]} timeStep={1 / 60}>
                   <Band profile={profile} textureMode="custom" flipped={flipped} onFlip={flipCard} />
                 </Physics>
                 <Environment blur={0.75}>
                   <Lightformer
-                    intensity={2}
-                    color="white"
+                    intensity={0.8}
+                    color="#bae6fd"
                     position={[0, -1, 5]}
                     rotation={[0, 0, Math.PI / 3]}
-                    scale={[100, 0.1, 1]}
+                    scale={[40, 2, 1]}
                   />
                   <Lightformer
-                    intensity={3}
-                    color="white"
-                    position={[-1, -1, 1]}
-                    rotation={[0, 0, Math.PI / 3]}
-                    scale={[100, 0.1, 1]}
-                  />
-                  <Lightformer
-                    intensity={3}
-                    color="white"
-                    position={[1, 1, 1]}
-                    rotation={[0, 0, Math.PI / 3]}
-                    scale={[100, 0.1, 1]}
-                  />
-                  <Lightformer
-                    intensity={10}
-                    color="white"
-                    position={[-10, 0, 14]}
-                    rotation={[0, Math.PI / 2, Math.PI / 3]}
-                    scale={[100, 10, 1]}
+                    intensity={0.6}
+                    color="#a7f3d0"
+                    position={[2, 1, 2]}
+                    rotation={[0, 0, -Math.PI / 4]}
+                    scale={[25, 2, 1]}
                   />
                 </Environment>
               </Suspense>
             </Canvas>
-            <button
-              type="button"
-              onClick={flipCard}
-              aria-pressed={flipped}
-              className="absolute bottom-4 right-6 lg:right-14 xl:right-20 z-30 pointer-events-auto min-h-11 rounded-xl border border-cyan-500/30 bg-[#090d16]/95 px-4 py-2 text-xs font-mono font-semibold text-cyan-300 shadow-lg transition-colors hover:bg-cyan-500/15 focus-visible:outline-2 focus-visible:outline-cyan-300"
-            >
-              {flipped ? '↻ Lihat depan' : '↻ Lihat belakang'}
-            </button>
           </ErrorBoundary>
         )}
     </div>
