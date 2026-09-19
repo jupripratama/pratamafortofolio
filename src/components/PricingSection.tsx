@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Check, 
-  Sparkles, 
-  ArrowRight, 
-  Sprout, 
-  Rocket, 
-  Trophy, 
+import {
+  Check,
+  Sparkles,
+  ArrowRight,
+  Sprout,
+  Rocket,
+  Trophy,
   HelpCircle,
   MessageSquare
 } from 'lucide-react';
@@ -48,7 +48,7 @@ export function PricingSection({ onOpenHireModal }: PricingSectionProps) {
       id: 'professional',
       name: 'Professional',
       icon: Rocket,
-      price: '1.5Jt',
+      price: '2Jt+',
       priceUnit: '/ project',
       description: 'Ideal untuk bisnis yang ingin tampil profesional dengan sistem dinamis',
       isPopular: true,
@@ -71,7 +71,7 @@ export function PricingSection({ onOpenHireModal }: PricingSectionProps) {
       id: 'enterprise',
       name: 'Enterprise',
       icon: Trophy,
-      price: '3.5Jt+',
+      price: '4.5Jt+',
       priceUnit: '/ project',
       description: 'Solusi penuh untuk bisnis skala besar, sistem internal & backend khusus',
       isPopular: false,
@@ -94,9 +94,9 @@ export function PricingSection({ onOpenHireModal }: PricingSectionProps) {
   return (
     <section id="pricing" className="py-20 relative overflow-hidden bg-transparent">
       <div className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 relative z-10">
-        
+
         {/* Section Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
           whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           viewport={{ once: true, margin: '-50px' }}
@@ -107,7 +107,7 @@ export function PricingSection({ onOpenHireModal }: PricingSectionProps) {
             <span className="text-cyan-400 font-bold">+</span>
             <span>INVESTASI TERBAIK</span>
           </div>
-          
+
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-mono">
             Harga <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-emerald-400">Jasa</span>
           </h2>
@@ -120,7 +120,7 @@ export function PricingSection({ onOpenHireModal }: PricingSectionProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {plans.map((plan, idx) => {
             const Icon = plan.icon;
-            
+
             return (
               <motion.div
                 key={plan.id}
@@ -132,11 +132,10 @@ export function PricingSection({ onOpenHireModal }: PricingSectionProps) {
                   soundFx.playHover();
                   setSelectedPlan(plan.id as any);
                 }}
-                className={`relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 backdrop-blur-xl cursor-pointer ${
-                  plan.isPopular
-                    ? 'bg-gradient-to-b from-[#091523] via-[#09101b] to-[#070b12] border-2 border-cyan-400/60 shadow-[0_0_40px_rgba(6,182,212,0.2)] lg:-translate-y-2'
-                    : 'bg-[#090d16]/90 border border-white/10 hover:border-cyan-500/30'
-                }`}
+                className={`relative rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 backdrop-blur-xl cursor-pointer ${plan.isPopular
+                  ? 'bg-gradient-to-b from-[#091523] via-[#09101b] to-[#070b12] border-2 border-cyan-400/60 shadow-[0_0_40px_rgba(6,182,212,0.2)] lg:-translate-y-2'
+                  : 'bg-[#090d16]/90 border border-white/10 hover:border-cyan-500/30'
+                  }`}
               >
                 {/* Popular Pill */}
                 {plan.isPopular && (

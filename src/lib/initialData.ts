@@ -133,20 +133,22 @@ export const INITIAL_SKILLS: Skill[] = [
   // Backend
   { id: "s1", name: "C# / .NET 8", category: "backend", level: 95, iconName: "Server", experienceYears: "4 yrs", isPopular: true },
   { id: "s2", name: "Golang", category: "backend", level: 90, iconName: "Cpu", experienceYears: "3 yrs", isPopular: true },
-  { id: "s3", name: "NestJS & Node.js", category: "backend", level: 92, iconName: "Terminal", experienceYears: "4 yrs", isPopular: true },
+  { id: "s3", name: "Nest.JS", category: "backend", level: 92, iconName: "Terminal", experienceYears: "4 yrs", isPopular: true },
+  { id: "s3b", name: "Elysia.js / Bun", category: "backend", level: 88, iconName: "Terminal", experienceYears: "2 yrs", isPopular: true },
   { id: "s4", name: "Laravel / PHP", category: "backend", level: 90, iconName: "Code2", experienceYears: "5 yrs", isPopular: true },
+  { id: "s4b", name: "CodeIgniter (CI)", category: "backend", level: 88, iconName: "Code2", experienceYears: "4 yrs" },
   { id: "s5", name: "RESTful API & Microservices", category: "backend", level: 94, iconName: "Globe", experienceYears: "5 yrs", isPopular: true },
 
   // Frontend
   { id: "s6", name: "React 19 / Vite", category: "frontend", level: 92, iconName: "Layers", experienceYears: "4 yrs", isPopular: true },
   { id: "s7", name: "TypeScript", category: "frontend", level: 90, iconName: "FileCode", experienceYears: "4 yrs", isPopular: true },
   { id: "s8", name: "Tailwind CSS", category: "frontend", level: 95, iconName: "Palette", experienceYears: "4 yrs", isPopular: true },
-  { id: "s9", name: "React Native", category: "frontend", level: 85, iconName: "Sparkles", experienceYears: "2 yrs" },
+  { id: "s9", name: "Expo Go / React Native", category: "frontend", level: 88, iconName: "Sparkles", experienceYears: "3 yrs", isPopular: true },
 
   // Database
-  { id: "s10", name: "PostgreSQL & Supabase", category: "database", level: 92, iconName: "Database", experienceYears: "4 yrs", isPopular: true },
+  { id: "s10", name: "Supabase & PostgreSQL", category: "database", level: 92, iconName: "Database", experienceYears: "4 yrs", isPopular: true },
   { id: "s11", name: "Microsoft SQL Server", category: "database", level: 90, iconName: "Database", experienceYears: "4 yrs" },
-  { id: "s12", name: "MySQL / MariaDB", category: "database", level: 92, iconName: "FolderGit2", experienceYears: "5 yrs" },
+  { id: "s12", name: "MySQL / MariaDB", category: "database", level: 92, iconName: "FolderGit2", experienceYears: "5 yrs", isPopular: true },
   { id: "s13", name: "Redis Caching", category: "database", level: 85, iconName: "Zap", experienceYears: "2 yrs" },
 
   // DevOps & Infrastructure / Hardware

@@ -40,7 +40,6 @@ export function LinuxBootLoader({ onComplete }: LinuxBootLoaderProps) {
     // Play subtle startup audio
     soundFx.playHover();
 
-    let currentIndex = 0;
     const startTime = Date.now();
     const totalDuration = 2300;
 
@@ -68,10 +67,11 @@ export function LinuxBootLoader({ onComplete }: LinuxBootLoaderProps) {
       }, item.delay);
     });
 
+    let completeTimer: ReturnType<typeof setTimeout>;
     const finishTimer = setTimeout(() => {
       setIsDone(true);
       soundFx.playSuccess();
-      setTimeout(() => {
+      completeTimer = setTimeout(() => {
         onComplete();
       }, 500);
     }, totalDuration + 200);
@@ -80,6 +80,7 @@ export function LinuxBootLoader({ onComplete }: LinuxBootLoaderProps) {
       clearInterval(progressInterval);
       logTimers.forEach(clearTimeout);
       clearTimeout(finishTimer);
+      clearTimeout(completeTimer);
     };
   }, []);
 
@@ -91,9 +92,11 @@ export function LinuxBootLoader({ onComplete }: LinuxBootLoaderProps) {
   return (
     <motion.div
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.02, filter: 'blur(8px)' }}
+      exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: 'easeInOut' }}
-      className="fixed inset-0 z-50 bg-[#04060a] text-slate-200 font-mono flex flex-col justify-between p-4 sm:p-8 select-none overflow-hidden"
+      onPointerDown={() => soundFx.unlock()}
+      onClick={() => soundFx.unlock()}
+      className="fixed inset-0 z-50 bg-[#04060a] text-slate-200 font-mono flex flex-col justify-between p-4 sm:p-8 select-none overflow-hidden cursor-default"
     >
       {/* Background scanline & CRT effect */}
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0),rgba(255,255,255,0)_50%,rgba(0,0,0,0.3)_50%,rgba(0,0,0,0.3))] bg-[size:100%_4px] pointer-events-none opacity-40 z-20" />
@@ -201,3 +204,4 @@ export function LinuxBootLoader({ onComplete }: LinuxBootLoaderProps) {
     </motion.div>
   );
 }
+

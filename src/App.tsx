@@ -36,6 +36,7 @@ import {
   INITIAL_TESTIMONIALS 
 } from './lib/initialData';
 import { soundFx } from './lib/audio';
+import { updateLegacyContacts } from './lib/contactInfo';
 
 export default function App() {
   const [profile, setProfile] = useState<ProfileSettings>(INITIAL_PROFILE);
@@ -76,7 +77,7 @@ export default function App() {
         DataStore.getTestimonials(),
       ]);
 
-      setProfile(loadedProfile);
+      setProfile(updateLegacyContacts(loadedProfile));
       setProjects(loadedProjects);
       setSkills(loadedSkills);
       setExperiences(loadedExperiences);
@@ -91,6 +92,8 @@ export default function App() {
   useEffect(() => {
     loadAllData();
   }, []);
+
+  useEffect(() => soundFx.attach(), []);
 
   // Global Admin Hotkey: Ctrl+Shift+A or Cmd+Shift+A
   useEffect(() => {
@@ -118,7 +121,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#07090e] text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-200 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#07090e] text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-200 overflow-x-clip">
       {/* Global Continuous Cyber Blueprint Grid (Seamless across all sections) */}
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#1f29370f_1px,transparent_1px),linear-gradient(to_bottom,#1f29370f_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] pointer-events-none z-0" />
 

@@ -12,6 +12,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 const GLTF_PATH = '/assets/kartu.glb';
 const TEXTURE_PATH = '/assets/bandd.png';
 const ROPE_SEGMENT_LENGTH = 2.45;
+const INITIAL_SEGMENT_LENGTH = 0.95;
 const MODEL_SCALE = 2.6;
 const MODEL_OFFSET: [number, number, number] = [0, -1.2, -0.05];
 const VIEW_HEIGHT = 6.2;
@@ -131,6 +132,7 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
     position: THREE.Vector3;
   } | null>(null);
   const [hovered, hover] = useState(false);
+  const hasSnapped = useRef(false);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], ROPE_SEGMENT_LENGTH]);
@@ -237,6 +239,17 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
     updateStrap(clampTop, quat, middle, guide, anchor);
   }, -1);
 
+  // Play realistic metallic snap clink when the card reaches the bottom of its initial fall
+  useFrame(() => {
+    if (!hasSnapped.current && card.current) {
+      const trans = card.current.translation();
+      if (trans.y <= 8.45 - ROPE_SEGMENT_LENGTH * 2.6) {
+        hasSnapped.current = true;
+        soundFx.playSnap(0.9);
+      }
+    }
+  });
+
   const handleFlip = () => {
     if (card.current && !dragged) {
       onFlip();
@@ -248,19 +261,19 @@ function Band({ profile, textureMode, flipped, onFlip }: BandProps) {
       {/* Leave extra space below the card for a short downward pull. */}
       <group position={[anchorX, 8.45, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed"><group ref={anchorVisual} /></RigidBody>
-        <RigidBody position={[0, -ROPE_SEGMENT_LENGTH, 0]} ref={j1} {...segmentProps}>
+        <RigidBody position={[0, -INITIAL_SEGMENT_LENGTH, 0]} ref={j1} {...segmentProps}>
           <group ref={guideVisual} />
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[0, -ROPE_SEGMENT_LENGTH * 2, 0]} ref={j2} {...segmentProps}>
+        <RigidBody position={[0, -INITIAL_SEGMENT_LENGTH * 2, 0]} ref={j2} {...segmentProps}>
           <group ref={middleVisual} />
           <BallCollider args={[0.1]} />
         </RigidBody>
-        <RigidBody position={[0, -ROPE_SEGMENT_LENGTH * 3, 0]} ref={j3} {...segmentProps}>
+        <RigidBody position={[0, -INITIAL_SEGMENT_LENGTH * 3, 0]} ref={j3} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
         <RigidBody
-          position={[-attachment.joint[0], -ROPE_SEGMENT_LENGTH * 3 - attachment.joint[1], -attachment.joint[2]]}
+          position={[-attachment.joint[0] + 0.22, -INITIAL_SEGMENT_LENGTH * 3 - attachment.joint[1], -attachment.joint[2] + 0.08]}
           ref={card}
           {...segmentProps}
           type="dynamic"

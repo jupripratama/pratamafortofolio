@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Mail, Send, Phone, Globe, ExternalLink, MessageSquare, Copy, Check, MapPin, Clock } from 'lucide-react';
 import { ProfileSettings } from '../types';
 import { soundFx } from '../lib/audio';
+import { updateLegacyContacts } from '../lib/contactInfo';
 
 interface ContactSectionProps {
   profile: ProfileSettings;
@@ -35,7 +36,9 @@ export function ContactSection({ profile }: ContactSectionProps) {
     setIsSubmitted(true);
   };
 
-  const waNumber = '6281258661601';
+  const contacts = updateLegacyContacts(profile);
+  const waNumber = new URL(contacts.whatsappUrl).pathname.replace(/\D/g, '');
+  const telegramUsername = new URL(contacts.telegramUrl).pathname.replace(/\//g, '');
   const defaultWaMessage = encodeURIComponent(`Halo Mas Jupri, saya tertarik untuk mendiskusikan peluang proyek bersama Anda.`);
   const waUrl = `https://wa.me/${waNumber}?text=${defaultWaMessage}`;
 
@@ -156,7 +159,7 @@ export function ContactSection({ profile }: ContactSectionProps) {
                     <div>
                       <span className="text-[10px] font-mono text-slate-400 uppercase block">WHATSAPP CHAT</span>
                       <span className="text-xs sm:text-sm font-mono text-white group-hover:text-emerald-300 font-semibold block">
-                        +62 812-5866-1601
+                        +{waNumber}
                       </span>
                     </div>
                   </div>
@@ -165,7 +168,7 @@ export function ContactSection({ profile }: ContactSectionProps) {
 
                 {/* Telegram Direct */}
                 <a
-                  href={profile.telegramUrl || 'https://t.me/jupriekapratama'}
+                  href={contacts.telegramUrl}
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => soundFx.playClick()}
@@ -178,7 +181,7 @@ export function ContactSection({ profile }: ContactSectionProps) {
                     <div>
                       <span className="text-[10px] font-mono text-slate-400 uppercase block">TELEGRAM</span>
                       <span className="text-xs sm:text-sm font-mono text-white group-hover:text-sky-300 font-semibold block">
-                        t.me/jupriekapratama
+                        @{telegramUsername}
                       </span>
                     </div>
                   </div>

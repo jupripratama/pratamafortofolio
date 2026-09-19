@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* Keep the document as the only vertical page scroller. */
+html, body, #root {
+  overflow-x: clip;
+}
+
+/* Fiber's inner event surface must also allow native vertical touch gestures. */
+.tag-canvas > div, .tag-canvas canvas {
+  touch-action: pan-y !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 @layer base {
   * {
     border-color: rgba(255, 255, 255, 0.08);

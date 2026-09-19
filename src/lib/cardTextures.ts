@@ -20,7 +20,7 @@ export function createProfileCardTexture(
   }
 
   // Clear background
-  ctx.fillStyle = '#060910';
+  ctx.fillStyle = '#263b48';
   ctx.fillRect(0, 0, 2048, 2048);
 
   // ==========================================
@@ -107,8 +107,8 @@ export function createProfileCardTexture(
   ctx.restore();
 
   // Front Card Outer Border
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'rgba(164, 211, 230, 0.58)';
+  ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.roundRect(frontX, frontY, frontW, frontH, cornerRadius);
   ctx.stroke();

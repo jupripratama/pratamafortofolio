@@ -1,21 +1,94 @@
 // Web Audio API Synthesizer for UI sound effects and generative ambient Lo-Fi audio
 
-class SoundEngine {
+export class SoundEngine {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
   private ambientOscillators: OscillatorNode[] = [];
   private ambientGain: GainNode | null = null;
   private isAmbientPlaying: boolean = false;
+  private unlocked = false;
+  private resuming: Promise<void> | null = null;
+  private ambientTimer: ReturnType<typeof setTimeout> | undefined;
 
-  private initCtx() {
-    if (!this.ctx && typeof window !== 'undefined') {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (AudioContextClass) {
-        this.ctx = new AudioContextClass();
+  public attach() {
+    this.initCtx();
+    if (this.ctx && this.ctx.state === 'running') {
+      this.unlocked = true;
+    }
+
+    const unlock = () => {
+      this.unlocked = true;
+      this.initCtx();
+      if (this.ctx && this.ctx.state === 'suspended') {
+        if (!this.resuming) {
+          this.resuming = this.ctx.resume().finally(() => { this.resuming = null; });
+        }
+      }
+    };
+
+    window.addEventListener('pointerdown', unlock, true);
+    window.addEventListener('pointerup', unlock, true);
+    window.addEventListener('keydown', unlock, true);
+    window.addEventListener('touchstart', unlock, true);
+    window.addEventListener('click', unlock, true);
+
+    return () => {
+      window.removeEventListener('pointerdown', unlock, true);
+      window.removeEventListener('pointerup', unlock, true);
+      window.removeEventListener('keydown', unlock, true);
+      window.removeEventListener('touchstart', unlock, true);
+      window.removeEventListener('click', unlock, true);
+      this.stopAmbient();
+    };
+  }
+
+  public unlock() {
+    this.unlocked = true;
+    this.initCtx();
+    if (this.ctx && this.ctx.state === 'suspended') {
+      if (!this.resuming) {
+        this.resuming = this.ctx.resume().finally(() => { this.resuming = null; });
       }
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+  }
+
+  private async ready(): Promise<boolean> {
+    if (this.isMuted || (typeof document !== 'undefined' && document.hidden)) return false;
+
+    this.initCtx();
+    if (!this.ctx) return false;
+
+    // If already running (browser permitted autoplay), mark unlocked and proceed immediately
+    if (this.ctx.state === 'running') {
+      this.unlocked = true;
+      return true;
+    }
+
+    // If unlocked by user gesture and suspended, resume
+    if (this.unlocked) {
+      const requestedAt = performance.now();
+      try {
+        if (!this.resuming) {
+          this.resuming = this.ctx.resume().finally(() => { this.resuming = null; });
+        }
+        await this.resuming;
+        const currentState: string = this.ctx.state;
+        return currentState === 'running' && !this.isMuted && (!document || !document.hidden)
+          && performance.now() - requestedAt < 400;
+      } catch {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  private initCtx() {
+    if ((!this.ctx || this.ctx.state === 'closed') && typeof window !== 'undefined') {
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (AudioContextClass) {
+        this.ctx = new AudioContextClass({ latencyHint: 'interactive' });
+      }
     }
   }
 
@@ -31,38 +104,37 @@ class SoundEngine {
   }
 
   // Futuristic subtle hover blip
-  public playHover() {
+  public async playHover() {
     if (this.isMuted) return;
     try {
-      this.initCtx();
-      if (!this.ctx) return;
+      if (!(await this.ready()) || !this.ctx) return;
 
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.04);
+      osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.05);
 
-      gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.035, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
 
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
       osc.start();
-      osc.stop(this.ctx.currentTime + 0.04);
+      osc.stop(this.ctx.currentTime + 0.05);
     } catch {
       // Audio autoplay policy fallback
     }
   }
 
   // Cyber Click
-  public playClick() {
+  public async playClick() {
     if (this.isMuted) return;
     try {
-      this.initCtx();
-      if (!this.ctx) return;
+      if (!(await this.ready()) || !this.ctx) return;
 
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
@@ -74,6 +146,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
 
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
@@ -85,11 +158,10 @@ class SoundEngine {
   }
 
   // 3D Card Flip Swoosh & Snap
-  public playCardFlip() {
+  public async playCardFlip() {
     if (this.isMuted) return;
     try {
-      this.initCtx();
-      if (!this.ctx) return;
+      if (!(await this.ready()) || !this.ctx) return;
 
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
@@ -103,6 +175,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(0.03, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
 
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
@@ -114,11 +187,10 @@ class SoundEngine {
   }
 
   // Realistic Lanyard / Ball-chain Elastic Snap & Bounce Clink
-  public playSnap(intensity: number = 1.0) {
+  public async playSnap(intensity: number = 1.0) {
     if (this.isMuted) return;
     try {
-      this.initCtx();
-      if (!this.ctx) return;
+      if (!(await this.ready()) || !this.ctx) return;
 
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
@@ -133,6 +205,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(vol, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
 
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
@@ -144,11 +217,10 @@ class SoundEngine {
   }
 
   // Success Chime
-  public playSuccess() {
+  public async playSuccess() {
     if (this.isMuted) return;
     try {
-      this.initCtx();
-      if (!this.ctx) return;
+      if (!(await this.ready()) || !this.ctx) return;
 
       const now = this.ctx.currentTime;
       const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
@@ -164,6 +236,7 @@ class SoundEngine {
         gain.gain.setValueAtTime(0.04, now + i * 0.08);
         gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.3);
 
+        osc.onended = () => { osc.disconnect(); gain.disconnect(); };
         osc.connect(gain);
         gain.connect(this.ctx.destination);
 
@@ -176,11 +249,10 @@ class SoundEngine {
   }
 
   // Terminal keystroke tick
-  public playKeyTick() {
+  public async playKeyTick() {
     if (this.isMuted) return;
     try {
-      this.initCtx();
-      if (!this.ctx) return;
+      if (!(await this.ready()) || !this.ctx) return;
 
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
@@ -188,27 +260,28 @@ class SoundEngine {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(800 + Math.random() * 400, this.ctx.currentTime);
 
-      gain.gain.setValueAtTime(0.015, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.02);
+      gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.03);
 
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
       osc.start();
-      osc.stop(this.ctx.currentTime + 0.02);
+      osc.stop(this.ctx.currentTime + 0.03);
     } catch {
       // silent catch
     }
   }
 
   // Generative Lo-Fi Ambient Synth chord player
-  public toggleAmbientMusic(): boolean {
+  public async toggleAmbientMusic(): Promise<boolean> {
     if (this.isAmbientPlaying) {
       this.stopAmbient();
       return false;
     } else {
-      this.startAmbient();
-      return true;
+      await this.startAmbient();
+      return this.isAmbientPlaying;
     }
   }
 
@@ -216,10 +289,9 @@ class SoundEngine {
     return this.isAmbientPlaying;
   }
 
-  public startAmbient() {
+  public async startAmbient() {
     try {
-      this.initCtx();
-      if (!this.ctx) return;
+      if (!(await this.ready()) || !this.ctx) return;
       this.stopAmbient();
 
       const chords = [
@@ -269,7 +341,7 @@ class SoundEngine {
         });
 
         if (this.isAmbientPlaying) {
-          setTimeout(playNextChord, 3800);
+          this.ambientTimer = setTimeout(playNextChord, 3800);
         }
       };
 
@@ -281,6 +353,7 @@ class SoundEngine {
   }
 
   public stopAmbient() {
+    clearTimeout(this.ambientTimer);
     this.isAmbientPlaying = false;
     this.ambientOscillators.forEach(osc => {
       try { osc.stop(); osc.disconnect(); } catch {}

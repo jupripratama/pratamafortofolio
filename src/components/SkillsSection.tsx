@@ -8,15 +8,23 @@ import {
   ReactIcon,
   NextjsIcon,
   TailwindIcon,
+  ExpoIcon,
   NodejsIcon,
+  NestjsIcon,
+  ElysiaIcon,
   ExpressIcon,
-  PostgresIcon,
-  MongoDbIcon,
-  PrismaIcon,
-  GraphQlIcon,
-  GitIcon,
-  DockerIcon,
+  GolangIcon,
+  DotNetIcon,
   LaravelIcon,
+  CodeIgniterIcon,
+  GraphQlIcon,
+  PostgresIcon,
+  MySqlIcon,
+  SupabaseIcon,
+  MongoDbIcon,
+  DockerIcon,
+  CoolifyIcon,
+  GitIcon,
   VercelAwsIcon
 } from './TechIcons';
 
@@ -31,7 +39,7 @@ interface SkillItem {
 
 export function SkillsSection() {
   const skills: SkillItem[] = [
-    // Row 1
+    // Row 1: Core Web & Languages
     {
       id: 'html5-css3',
       name: 'HTML5 & CSS3',
@@ -61,7 +69,7 @@ export function SkillsSection() {
       borderColor: 'group-hover:border-cyan-400/40'
     },
 
-    // Row 2
+    // Row 2: Full-stack & Mobile
     {
       id: 'nextjs',
       name: 'Next.js',
@@ -77,11 +85,34 @@ export function SkillsSection() {
       borderColor: 'group-hover:border-cyan-400/40'
     },
     {
+      id: 'expo-go',
+      name: 'Expo Go',
+      category: 'Mobile App Framework',
+      IconComponent: ExpoIcon,
+      borderColor: 'group-hover:border-indigo-400/40'
+    },
+    {
       id: 'nodejs',
       name: 'Node.js',
       category: 'Backend Runtime',
       IconComponent: NodejsIcon,
       borderColor: 'group-hover:border-emerald-500/40'
+    },
+
+    // Row 3: Modern Backend Frameworks
+    {
+      id: 'nestjs',
+      name: 'Nest.JS',
+      category: 'Enterprise TS Framework',
+      IconComponent: NestjsIcon,
+      borderColor: 'group-hover:border-rose-500/40'
+    },
+    {
+      id: 'elysia',
+      name: 'Elysia.js',
+      category: 'Bun Web Framework',
+      IconComponent: ElysiaIcon,
+      borderColor: 'group-hover:border-pink-500/40'
     },
     {
       id: 'express',
@@ -90,28 +121,35 @@ export function SkillsSection() {
       IconComponent: ExpressIcon,
       borderColor: 'group-hover:border-slate-400/40'
     },
+    {
+      id: 'golang',
+      name: 'Golang',
+      category: 'High-Performance Backend',
+      IconComponent: GolangIcon,
+      borderColor: 'group-hover:border-cyan-400/40'
+    },
 
-    // Row 3
+    // Row 4: Enterprise & PHP Ecosystem
     {
-      id: 'postgresql',
-      name: 'PostgreSQL',
-      category: 'Relational Database',
-      IconComponent: PostgresIcon,
-      borderColor: 'group-hover:border-sky-500/40'
+      id: 'dotnet',
+      name: '.NET',
+      category: 'Enterprise Backend',
+      IconComponent: DotNetIcon,
+      borderColor: 'group-hover:border-purple-500/40'
     },
     {
-      id: 'mongodb',
-      name: 'MongoDB',
-      category: 'NoSQL Database',
-      IconComponent: MongoDbIcon,
-      borderColor: 'group-hover:border-emerald-500/40'
+      id: 'laravel',
+      name: 'PHP & Laravel',
+      category: 'Backend Framework',
+      IconComponent: LaravelIcon,
+      borderColor: 'group-hover:border-red-500/40'
     },
     {
-      id: 'prisma',
-      name: 'Prisma',
-      category: 'Database ORM',
-      IconComponent: PrismaIcon,
-      borderColor: 'group-hover:border-indigo-400/40'
+      id: 'codeigniter',
+      name: 'CodeIgniter (CI)',
+      category: 'PHP MVC Framework',
+      IconComponent: CodeIgniterIcon,
+      borderColor: 'group-hover:border-orange-600/40'
     },
     {
       id: 'rest-graphql',
@@ -121,14 +159,37 @@ export function SkillsSection() {
       borderColor: 'group-hover:border-pink-500/40'
     },
 
-    // Row 4
+    // Row 5: Databases & BaaS
     {
-      id: 'git-github',
-      name: 'Git & GitHub',
-      category: 'Version Control',
-      IconComponent: GitIcon,
-      borderColor: 'group-hover:border-orange-500/40'
+      id: 'postgresql',
+      name: 'PostgreSQL',
+      category: 'Relational Database',
+      IconComponent: PostgresIcon,
+      borderColor: 'group-hover:border-sky-500/40'
     },
+    {
+      id: 'mysql',
+      name: 'MySQL',
+      category: 'Relational Database',
+      IconComponent: MySqlIcon,
+      borderColor: 'group-hover:border-sky-600/40'
+    },
+    {
+      id: 'supabase',
+      name: 'Supabase',
+      category: 'BaaS & Postgres',
+      IconComponent: SupabaseIcon,
+      borderColor: 'group-hover:border-emerald-400/40'
+    },
+    {
+      id: 'mongodb',
+      name: 'MongoDB',
+      category: 'NoSQL Database',
+      IconComponent: MongoDbIcon,
+      borderColor: 'group-hover:border-emerald-500/40'
+    },
+
+    // Row 6: DevOps, Cloud & Deployment
     {
       id: 'docker',
       name: 'Docker',
@@ -137,11 +198,18 @@ export function SkillsSection() {
       borderColor: 'group-hover:border-sky-500/40'
     },
     {
-      id: 'laravel',
-      name: 'PHP & Laravel',
-      category: 'Backend Framework',
-      IconComponent: LaravelIcon,
-      borderColor: 'group-hover:border-red-500/40'
+      id: 'coolify',
+      name: 'Coolify',
+      category: 'Self-Hosted PaaS',
+      IconComponent: CoolifyIcon,
+      borderColor: 'group-hover:border-purple-500/40'
+    },
+    {
+      id: 'git-github',
+      name: 'Git & GitHub',
+      category: 'Version Control',
+      IconComponent: GitIcon,
+      borderColor: 'group-hover:border-orange-500/40'
     },
     {
       id: 'vercel-aws',

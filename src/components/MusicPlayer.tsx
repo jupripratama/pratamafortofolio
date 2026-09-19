@@ -17,17 +17,17 @@ export function MusicPlayer() {
 
   const currentTrack = PLAYLIST[currentTrackIndex];
 
-  const handleTogglePlay = () => {
+  const handleTogglePlay = async () => {
     soundFx.playClick();
-    const playing = soundFx.toggleAmbientMusic();
+    const playing = await soundFx.toggleAmbientMusic();
     setIsPlaying(playing);
   };
 
-  const handleNextTrack = () => {
+  const handleNextTrack = async () => {
     soundFx.playClick();
     setCurrentTrackIndex((prev) => (prev + 1) % PLAYLIST.length);
     if (!isPlaying) {
-      const playing = soundFx.toggleAmbientMusic();
+      const playing = await soundFx.toggleAmbientMusic();
       setIsPlaying(playing);
     }
   };

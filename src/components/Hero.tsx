@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { 
   ArrowRight, 
   Globe, 
@@ -20,6 +20,7 @@ interface HeroProps {
 }
 
 export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true }: HeroProps) {
+  const reduceMotion = useReducedMotion();
   const [isCompact, setIsCompact] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches
   );
@@ -42,11 +43,16 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
       setDisplayedText('');
       return;
     }
+    if (reduceMotion) {
+      setDisplayedText(roleText);
+      return;
+    }
 
     let index = 0;
+    let interval: ReturnType<typeof setInterval>;
     setDisplayedText('');
     const delayTimer = setTimeout(() => {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         if (index <= roleText.length) {
           setDisplayedText(roleText.substring(0, index));
           index++;
@@ -55,15 +61,17 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
         }
       }, 45);
 
-      return () => clearInterval(interval);
     }, 450);
 
-    return () => clearTimeout(delayTimer);
-  }, [isReady]);
+    return () => {
+      clearTimeout(delayTimer);
+      clearInterval(interval);
+    };
+  }, [isReady, reduceMotion]);
 
   // Cyber scramble / decode effect on mouse hover
   const triggerScramble = () => {
-    if (isScrambling) return;
+    if (isScrambling || reduceMotion) return;
     setIsScrambling(true);
     soundFx.playKeyTick();
 
@@ -115,22 +123,22 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
             
             {/* Status & Location Pill */}
             <motion.div
-              initial={{ opacity: 0, x: 60, filter: 'blur(8px)' }}
-              animate={isReady ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: 60, filter: 'blur(8px)' }}
+              initial={{ opacity: 0, x: 60 }}
+              animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: 60 }}
               transition={{ duration: 0.75, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
               className="inline-flex flex-wrap items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#090d16]/90 border border-cyan-500/30 text-xs font-mono select-none shadow-lg shadow-black/40"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
               <span className="text-cyan-300 font-bold tracking-wider">AVAILABLE FOR PROJECTS</span>
-              <span className="text-slate-600">•</span>
+              <span className="text-slate-600">&bull;</span>
               <span className="text-slate-400">SANGATTA, WITA</span>
             </motion.div>
 
             {/* Brand Title: Jupri Eka Pratama with Gradient Accent */}
             <div className="space-y-2 select-none">
               <motion.h1
-                initial={{ opacity: 0, x: 70, filter: 'blur(10px)' }}
-                animate={isReady ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: 70, filter: 'blur(10px)' }}
+                initial={{ opacity: 0, x: 70 }}
+                animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: 70 }}
                 transition={{ duration: 0.8, delay: 0.38, ease: [0.16, 1, 0.3, 1] }}
                 className="text-4xl sm:text-5xl lg:text-6xl font-black font-mono tracking-tight text-white flex items-baseline gap-2 flex-wrap cursor-default"
               >
@@ -141,8 +149,8 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
               </motion.h1>
 
               <motion.div
-                initial={{ opacity: 0, x: 70, filter: 'blur(10px)' }}
-                animate={isReady ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: 70, filter: 'blur(10px)' }}
+                initial={{ opacity: 0, x: 70 }}
+                animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: 70 }}
                 transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 onMouseEnter={triggerScramble}
                 className="inline-flex items-center gap-2 text-base sm:text-lg font-mono text-cyan-300 font-medium select-none min-h-[2.25rem] px-3 py-1 -ml-3 rounded-lg border border-transparent hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all duration-200 cursor-pointer group"
@@ -158,8 +166,8 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
 
             {/* Description */}
             <motion.p
-              initial={{ opacity: 0, x: 60, filter: 'blur(8px)' }}
-              animate={isReady ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: 60, filter: 'blur(8px)' }}
+              initial={{ opacity: 0, x: 60 }}
+              animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: 60 }}
               transition={{ duration: 0.8, delay: 0.62, ease: [0.16, 1, 0.3, 1] }}
               className="text-slate-300 text-sm sm:text-base max-w-xl leading-relaxed font-sans"
             >
@@ -168,8 +176,8 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
 
             {/* Action Buttons */}
             <motion.div
-              initial={{ opacity: 0, x: 60, filter: 'blur(8px)' }}
-              animate={isReady ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: 60, filter: 'blur(8px)' }}
+              initial={{ opacity: 0, x: 60 }}
+              animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: 60 }}
               transition={{ duration: 0.8, delay: 0.74, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-wrap items-center gap-3.5 pt-2"
             >
@@ -199,8 +207,8 @@ export function Hero({ profile, onOpenHireModal, onSelectSection, isReady = true
 
             {/* Social & Download CV Row */}
             <motion.div
-              initial={{ opacity: 0, x: 50, filter: 'blur(6px)' }}
-              animate={isReady ? { opacity: 1, x: 0, filter: 'blur(0px)' } : { opacity: 0, x: 50, filter: 'blur(6px)' }}
+              initial={{ opacity: 0, x: 50 }}
+              animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
               transition={{ duration: 0.8, delay: 0.86, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-wrap items-center gap-2.5 pt-2"
             >
