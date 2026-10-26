@@ -13,7 +13,7 @@ export const INITIAL_PROFILE: ProfileSettings = {
   isAvailableForHire: true,
   resumeUrl: "/assets/CV Jupri Eka Pratama.pdf",
   email: "jupriekapratama@gmail.com",
-  githubUrl: "https://github.com/jupriekapratama",
+  githubUrl: "https://github.com/jupripratama",
   linkedinUrl: "https://linkedin.com/in/jupriekapratama",
   telegramUrl: "https://t.me/jupriekapratama",
   whatsappUrl: "https://wa.me/6281258661601",
